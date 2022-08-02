@@ -234,6 +234,28 @@ function contract_expression(subscripts, shapes...; kwargs...)
     ContractExpression(oe.contract_expression(subscripts, shapes...; kwargs...))
 end
 
+function rand_equation(
+    n,
+    reg;
+    n_out = 0,
+    d_min = 2,
+    d_max = 9,
+    seed = nothing,
+    global_dim = false,
+    return_size_dict = false,
+)
+    oe.helpers.rand_equation(
+        n,
+        reg;
+        n_out = n_out,
+        d_min = d_min,
+        d_max = d_max,
+        seed = seed,
+        global_dim = global_dim,
+        return_size_dict = return_size_dict,
+    )
+end
+
 export contract_path, contract_expression, largest_intermediate
 
 end
