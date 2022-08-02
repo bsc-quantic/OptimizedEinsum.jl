@@ -4,7 +4,11 @@ import Base: show
 
 using PyCall
 
-oe = pyimport("opt_einsum")
+const oe = PyCall.PyNULL()
+
+function __init__()
+    copy!(oe, pyimport("opt_einsum"))
+end
 
 struct PathInfo
 	pyobj::PyObject
