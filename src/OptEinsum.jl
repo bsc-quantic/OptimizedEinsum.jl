@@ -11,7 +11,7 @@ function __init__()
 end
 
 struct PathInfo
-	pyobj::PyObject
+    pyobj::PyObject
 end
 
 Base.show(io::IO, p::PathInfo) = print(io, p.pyobj.__repr__())
@@ -76,12 +76,10 @@ Find a contraction order `path`, without performing the contraction.
 The resulting path indicates which terms of the input contraction should be
 contracted first, the result of this contraction is then appended to the end of
 the contraction list.
-
--
 """
 function contract_path(subscripts, operands...; kwargs...)
-	path, path_print = oe.contract_path(subscripts, operands...; kwargs...)
-	path, PathInfo(path_print)
+    path, path_print = oe.contract_path(subscripts, operands...; kwargs...)
+    path, PathInfo(path_print)
 end
 
 function contract_path(
@@ -94,13 +92,13 @@ function contract_path(
 end
 
 struct ContractExpression
-	pyobj::PyObject
+    pyobj::PyObject
 end
 
 Base.show(io::IO, x::ContractExpression) = print(io, x.pyobj.__repr__())
 
 function contract_expression(subscripts, shapes...; kwargs...)
-	ContractExpression(oe.contract_expression(subscripts, shapes...; kwargs...))
+    ContractExpression(oe.contract_expression(subscripts, shapes...; kwargs...))
 end
 
 export contract_path, contract_expression, largest_intermediate
