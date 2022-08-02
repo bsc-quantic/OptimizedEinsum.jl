@@ -1,4 +1,4 @@
-name = "OptEinsum"
+name = "OptimizedEinsum"
 uuid = "c9cfed12-e746-47c4-860d-affc68c43467"
 authors = ["Sergio Sánchez Ramírez <sergio.sanchez.ramirez@bsc.es>"]
 version = "0.0.1"

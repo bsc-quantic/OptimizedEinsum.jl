@@ -1,4 +1,4 @@
-module OptEinsum
+module OptimizedEinsum
 
 import Base: show, convert
 
@@ -174,7 +174,7 @@ remaining contraction, `(0, 1)`, is then executed.
 a = rand(2, 2)
 b = rand(2, 5)
 c = rand(5, 2)
-path_info = OptEinsum.contract_path('ij,jk,kl->il', a, b, c)
+path_info = OptimizedEinsum.contract_path('ij,jk,kl->il', a, b, c)
 print(path_info[0])
 #> [(1, 2), (0, 1)]
 print(path_info[1])
@@ -197,7 +197,7 @@ A more complex index transformation example.
 ```julia
 I = rand(10, 10, 10, 10)
 C = rand(10, 10)
-path_info = OptEinsum.contract_path('ea,fb,abcd,gc,hd->efgh', C, C, I, C, C)
+path_info = OptimizedEinsum.contract_path('ea,fb,abcd,gc,hd->efgh', C, C, I, C, C)
 
 print(path_info[0])
 #> [(0, 2), (0, 3), (0, 2), (0, 1)]
