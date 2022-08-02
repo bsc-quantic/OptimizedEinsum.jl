@@ -1,6 +1,6 @@
 module OptEinsum
 
-import Base: show
+import Base: show, convert
 
 using PyCall
 
@@ -9,9 +9,14 @@ export contract, contract_path, contract_expression
 export rand_equation
 
 const oe = PyCall.PyNULL()
+const oecontract = PyCall.PyNULL()
 
 function __init__()
     copy!(oe, pyimport_conda("opt_einsum", "opt_einsum"))
+    copy!(oecontract, pyimport("opt_einsum.contract", "opt_einsum"))
+
+    pytype_mapping(oecontract.PathInfo, PathInfo)
+    pytype_mapping(oecontract.ContractExpression, ContractExpression)
 end
 
 struct PathInfo
@@ -19,6 +24,8 @@ struct PathInfo
 end
 
 Base.show(io::IO, p::PathInfo) = print(io, p.pyobj.__repr__())
+Base.convert(::Type{PathInfo}, x::PyObject) = PathInfo(x)
+
 largest_intermediate(p::PathInfo) = p.pyobj.largest_intermediate
 
 """
@@ -212,8 +219,7 @@ print(path_info[1])
 ```
 """
 function contract_path(subscripts, operands...; kwargs...)
-    path, path_print = oe.contract_path(subscripts, operands...; kwargs...)
-    path, PathInfo(path_print)
+    oe.contract_path(subscripts, operands...; kwargs...)
 end
 
 function contract_path(
@@ -221,8 +227,7 @@ function contract_path(
     operands::Vararg{<:NTuple{N,Integer} where {N}};
     kwargs...,
 )
-    path, path_print = oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
-    path, PathInfo(path_print)
+    oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
 end
 
 struct ContractExpression
@@ -230,9 +235,10 @@ struct ContractExpression
 end
 
 Base.show(io::IO, x::ContractExpression) = print(io, x.pyobj.__repr__())
+Base.convert(::Type{ContractExpression}, x::PyObject) = ContractExpression(x)
 
 function contract_expression(subscripts, shapes...; kwargs...)
-    ContractExpression(oe.contract_expression(subscripts, shapes...; kwargs...))
+    oe.contract_expression(subscripts, shapes...; kwargs...)
 end
 
 function rand_equation(
