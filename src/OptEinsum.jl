@@ -154,6 +154,61 @@ Find a contraction order `path`, without performing the contraction.
 The resulting path indicates which terms of the input contraction should be
 contracted first, the result of this contraction is then appended to the end of
 the contraction list.
+
+**Examples:**
+
+We can begin with a chain dot example. In this case, it is optimal to
+contract the b and c tensors represented by the first element of the path (1,
+2). The resulting tensor is added to the end of the contraction and the
+remaining contraction, `(0, 1)`, is then executed.
+
+```julia
+a = rand(2, 2)
+b = rand(2, 5)
+c = rand(5, 2)
+path_info = OptEinsum.contract_path('ij,jk,kl->il', a, b, c)
+print(path_info[0])
+#> [(1, 2), (0, 1)]
+print(path_info[1])
+#>   Complete contraction:  ij,jk,kl->il
+#>          Naive scaling:  4
+#>      Optimized scaling:  3
+#>       Naive FLOP count:  1.600e+02
+#>   Optimized FLOP count:  5.600e+01
+#>    Theoretical speedup:  2.857
+#>   Largest intermediate:  4.000e+00 elements
+#> -------------------------------------------------------------------------
+#> scaling                  current                                remaining
+#> -------------------------------------------------------------------------
+#>    3                   kl,jk->jl                                ij,jl->il
+#>    3                   jl,ij->il                                   il->il
+```
+
+A more complex index transformation example.
+
+```julia
+I = rand(10, 10, 10, 10)
+C = rand(10, 10)
+path_info = OptEinsum.contract_path('ea,fb,abcd,gc,hd->efgh', C, C, I, C, C)
+
+print(path_info[0])
+#> [(0, 2), (0, 3), (0, 2), (0, 1)]
+print(path_info[1])
+#>   Complete contraction:  ea,fb,abcd,gc,hd->efgh
+#>          Naive scaling:  8
+#>      Optimized scaling:  5
+#>       Naive FLOP count:  8.000e+08
+#>   Optimized FLOP count:  8.000e+05
+#>    Theoretical speedup:  1000.000
+#>   Largest intermediate:  1.000e+04 elements
+#> --------------------------------------------------------------------------
+#> scaling                  current                                remaining
+#> --------------------------------------------------------------------------
+#>    5               abcd,ea->bcde                      fb,gc,hd,bcde->efgh
+#>    5               bcde,fb->cdef                         gc,hd,cdef->efgh
+#>    5               cdef,gc->defg                            hd,defg->efgh
+#>    5               defg,hd->efgh                               efgh->efgh
+```
 """
 function contract_path(subscripts, operands...; kwargs...)
     path, path_print = oe.contract_path(subscripts, operands...; kwargs...)
