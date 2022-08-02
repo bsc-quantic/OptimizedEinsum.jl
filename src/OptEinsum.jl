@@ -84,6 +84,15 @@ function contract_path(subscripts, operands...; kwargs...)
 	path, PathInfo(path_print)
 end
 
+function contract_path(
+    subscripts,
+    operands::Vararg{<:NTuple{N,Integer} where {N}};
+    kwargs...,
+)
+    path, path_print = oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
+    path, PathInfo(path_print)
+end
+
 struct ContractExpression
 	pyobj::PyObject
 end
