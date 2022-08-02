@@ -13,7 +13,7 @@ const oecontract = PyCall.PyNULL()
 
 function __init__()
     copy!(oe, pyimport_conda("opt_einsum", "opt_einsum"))
-    copy!(oecontract, pyimport("opt_einsum.contract", "opt_einsum"))
+    copy!(oecontract, pyimport("opt_einsum.contract"))
 
     pytype_mapping(oecontract.PathInfo, PathInfo)
     pytype_mapping(oecontract.ContractExpression, ContractExpression)
