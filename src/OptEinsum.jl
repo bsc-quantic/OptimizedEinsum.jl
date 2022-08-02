@@ -14,7 +14,7 @@ struct PathInfo
 	pyobj::PyObject
 end
 
-Base.show(p::PathInfo) = p.pyobj.__repr__()
+Base.show(io::IO, p::PathInfo) = print(io, p.pyobj.__repr__())
 largest_intermediate(p::PathInfo) = p.pyobj.largest_intermediate
 
 # here for API completeness
@@ -88,7 +88,7 @@ struct ContractExpression
 	pyobj::PyObject
 end
 
-Base.show(x::ContractExpression) = print(io, x.pyobj.__repr__())
+Base.show(io::IO, x::ContractExpression) = print(io, x.pyobj.__repr__())
 
 function contract_expression(subscripts, shapes...; kwargs...)
 	ContractExpression(oe.contract_expression(subscripts, shapes...; kwargs...))
