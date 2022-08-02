@@ -11,7 +11,7 @@ export rand_equation
 const oe = PyCall.PyNULL()
 
 function __init__()
-    copy!(oe, pyimport("opt_einsum"))
+    copy!(oe, pyimport_conda("opt_einsum", "opt_einsum"))
 end
 
 struct PathInfo
