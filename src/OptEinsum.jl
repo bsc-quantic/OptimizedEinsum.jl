@@ -4,15 +4,15 @@ import Base: show
 
 using PyCall
 
+export largest_intermediate
+export contract, contract_path, contract_expression
+export rand_equation
+
 const oe = PyCall.PyNULL()
 
 function __init__()
     copy!(oe, pyimport("opt_einsum"))
 end
-
-export largest_intermediate
-export contract, contract_path, contract_expression
-export rand_equation
 
 struct PathInfo
     pyobj::PyObject
@@ -256,7 +256,5 @@ function rand_equation(
         return_size_dict = return_size_dict,
     )
 end
-
-export contract_path, contract_expression, largest_intermediate
 
 end
