@@ -21,9 +21,6 @@ end
 Base.show(io::IO, p::PathInfo) = print(io, p.pyobj.__repr__())
 largest_intermediate(p::PathInfo) = p.pyobj.largest_intermediate
 
-# here for API completeness
-get_symbol = Char
-
 """
 	contract(subscripts, operands...[, out, dtype, order, casting, use_blas, optimize, memory_limit, backend])
 
