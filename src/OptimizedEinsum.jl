@@ -16,7 +16,6 @@ function __init__()
     copy!(oecontract, pyimport("opt_einsum.contract"))
 
     pytype_mapping(oecontract.PathInfo, PathInfo)
-    pytype_mapping(oecontract.ContractExpression, ContractExpression)
 end
 
 struct PathInfo
@@ -241,17 +240,6 @@ function contract_path(
         shapes = true,
         kwargs...,
     )
-end
-
-struct ContractExpression
-    pyobj::PyObject
-end
-
-Base.show(io::IO, x::ContractExpression) = print(io, x.pyobj.__repr__())
-Base.convert(::Type{ContractExpression}, x::PyObject) = ContractExpression(x)
-
-function contract_expression(subscripts, shapes...; kwargs...)
-    oe.contract_expression(subscripts, shapes...; kwargs...)
 end
 
 function rand_equation(
