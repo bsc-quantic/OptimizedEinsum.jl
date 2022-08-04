@@ -1,7 +1,7 @@
 module OptimizedEinsum
 
 import Base: show, convert
-
+using Base.Iterators: flatten
 using PyCall
 
 export largest_intermediate
@@ -228,6 +228,19 @@ function contract_path(
     kwargs...,
 )
     oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
+end
+
+function contract_path(
+    output_inds::NTuple{N,Symbol} where {N},
+    operands::Vararg{Pair{NTuple{N,Symbol},NTuple{N,I}} where {N,I<:Integer}};
+    kwargs...,
+)
+    oe.contract_path(
+        collect(flatten(reverse.(operands)))...,
+        output_inds;
+        shapes = true,
+        kwargs...,
+    )
 end
 
 struct ContractExpression
