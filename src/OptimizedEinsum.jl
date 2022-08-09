@@ -7,7 +7,7 @@ using Random
 
 export largest_intermediate
 export contract, contract_path
-export rand_equation
+export rand_equation, get_symbol
 
 const oe = PyCall.PyNULL()
 const oecontract = PyCall.PyNULL()
