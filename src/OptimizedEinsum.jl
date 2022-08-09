@@ -6,7 +6,7 @@ using PyCall
 using Random
 
 export largest_intermediate
-export contract, contract_path, contract_expression
+export contract, contract_path
 export rand_equation
 
 const oe = PyCall.PyNULL()
