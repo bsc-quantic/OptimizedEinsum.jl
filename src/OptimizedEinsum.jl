@@ -317,7 +317,7 @@ function rand_equation(
     end
 
     inds = Symbol.(get_symbol.(randperm(n * reg ÷ 2 + n_out)))
-    size_dict = Dict(ind => rand(d_min:d_max) for ind in inds) # TODO check + 1
+    size_dict = Dict(ind => rand(d_min:d_max) for ind in inds)
 
     outer_inds = take(inds, n_out) |> collect
     inner_inds = drop(inds, n_out) |> collect
