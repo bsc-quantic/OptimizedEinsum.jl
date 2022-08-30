@@ -111,10 +111,11 @@ end
 
 Find a contraction order `path`, without performing the contraction.
 
-- **subscripts** - *(str)* Specifies the subscripts for summation.
-- **operands...** - *(list of array_like)* hese are the arrays for the operation.
-- **use_blas** - *(bool)* Do you use BLAS for valid operations, may use extra memory for more intermediates.
-- **optimize** - *(str, list or bool, optional (default: `auto`))* Choose the type of path.
+# Arguments
+- `subscripts` - *(str)* Specifies the subscripts for summation.
+- `operands` - *(list of array_like)* hese are the arrays for the operation.
+- `use_blas::Bool`: Do you use BLAS for valid operations, may use extra memory for more intermediates.
+- `optimize::Union{String,Vector{Symbol},Bool}`: Choose the type of path.
 
     - if a list is given uses this as the path.
     - `'optimal'` An algorithm that explores all possible ways of
@@ -222,11 +223,7 @@ function contract_path(subscripts, operands...; kwargs...)
     oe.contract_path(subscripts, operands...; kwargs...)
 end
 
-function contract_path(
-    subscripts,
-    operands::Vararg{<:NTuple{N,Integer} where {N}};
-    kwargs...,
-)
+function contract_path(subscripts, operands::Vararg{<:NTuple{N,Integer} where {N}}; kwargs...)
     oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
 end
 
@@ -235,16 +232,10 @@ function contract_path(
     operands::Vararg{Pair{NTuple{N,Symbol},NTuple{N,I}} where {N,I<:Integer}};
     kwargs...,
 )
-    oe.contract_path(
-        collect(flatten(reverse.(operands)))...,
-        output_inds;
-        shapes = true,
-        kwargs...,
-    )
+    oe.contract_path(collect(flatten(reverse.(operands)))..., output_inds; shapes = true, kwargs...)
 end
 
-const symbols_base =
-    [Symbol(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]
+const symbols_base = [Symbol(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]
 
 """
     get_symbol(i)
@@ -303,15 +294,7 @@ julia> join((join(String(c) for c in str) for str in [inputs..., outer_inds]), "
 ```
 ---
 """
-function rand_equation(
-    n,
-    reg;
-    n_out = 0,
-    d_min = 2,
-    d_max = 9,
-    seed = nothing,
-    global_dim::Bool = false,
-)
+function rand_equation(n, reg; n_out = 0, d_min = 2, d_max = 9, seed = nothing, global_dim::Bool = false)
     if seed != nothing
         Random.seed!(seed)
     end
@@ -322,8 +305,7 @@ function rand_equation(
     outer_inds = take(inds, n_out) |> collect
     inner_inds = drop(inds, n_out) |> collect
 
-    candidate_inds =
-        [outer_inds, flatten(repeated(inner_inds, 2))] |> flatten |> collect |> shuffle
+    candidate_inds = [outer_inds, flatten(repeated(inner_inds, 2))] |> flatten |> collect |> shuffle
 
     inputs = map(x -> [x], take(candidate_inds, n))
 
