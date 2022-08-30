@@ -19,14 +19,43 @@ function __init__()
     pytype_mapping(oecontract.PathInfo, PathInfo)
 end
 
+struct ContractionStep
+    operand_ids::NTuple{2,Int}
+    contracting_inds::Vector{Symbol}
+    eq::String
+    remaining::Vector{String}
+    do_blas::Bool
+end
+
 struct PathInfo
-    pyobj::PyObject
+    contraction_list::Vector{ContractionStep}
+    input_subscripts::String
+    output_subscripts::String
+    naive_cost::Int
+    opt_cost::Int
+    size_list::Dict{Symbol,Int}
 end
 
 Base.show(io::IO, p::PathInfo) = print(io, p.pyobj.__repr__())
 Base.convert(::Type{PathInfo}, x::PyObject) = PathInfo(x)
 
 largest_intermediate(p::PathInfo) = p.pyobj.largest_intermediate
+
+struct ContractionTree
+    contraction_list::Vector{ContractionStep}
+    size_dict::Dict{Symbol,Int}
+    inputs::Vector{NTuple{N,Symbol} where {N}}
+    output_inds::NTuple{N,Symbol} where {N}
+end
+
+equation(x::ContractionTree) = join((join(String(c) for c in str) for str in [x.inputs..., x.output_inds]), ",", "->")
+flops(x::ContractionTree) = error("not implemented yet")
+largest_intermediate(x::ContractionTree) = error("not implemented yet")
+
+# Base.show(io::IO, x::ContractionTree) = print()
+
+# Base.convert(::Type{ContractionTree}, x::PyObject) = begin
+# end
 
 """
     contract(subscripts, operands...[, out, dtype, order, casting, use_blas, optimize, memory_limit, backend])
