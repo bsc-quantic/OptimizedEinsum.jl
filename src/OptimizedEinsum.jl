@@ -224,15 +224,15 @@ function contract_path(subscripts, operands...; kwargs...)
 end
 
 function contract_path(subscripts, operands::Vararg{<:NTuple{N,Integer} where {N}}; kwargs...)
-    oe.contract_path(subscripts, operands...; shapes = true, kwargs...)
+    oe.contract_path(subscripts, operands...; shapes=true, kwargs...)
 end
 
 function contract_path(
     output_inds::NTuple{N,Symbol} where {N},
     operands::Vararg{Pair{NTuple{N,Symbol},NTuple{N,I}} where {N,I<:Integer}};
-    kwargs...,
+    kwargs...
 )
-    oe.contract_path(collect(flatten(reverse.(operands)))..., output_inds; shapes = true, kwargs...)
+    oe.contract_path(collect(flatten(reverse.(operands)))..., output_inds; shapes=true, kwargs...)
 end
 
 const symbols_base = [Symbol(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]
@@ -294,7 +294,7 @@ julia> join((join(String(c) for c in str) for str in [inputs..., outer_inds]), "
 ```
 ---
 """
-function rand_equation(n, reg; n_out = 0, d_min = 2, d_max = 9, seed = nothing, global_dim::Bool = false)
+function rand_equation(n, reg; n_out=0, d_min=2, d_max=9, seed=nothing, global_dim::Bool=false)
     if seed != nothing
         Random.seed!(seed)
     end
