@@ -256,7 +256,7 @@ julia> get_symbol(20000)
 """
 function get_symbol(i::Integer)
     if i < 52
-        symbols_base[i]
+        Symbol(symbols_base[i])
     elseif i ≥ 55296
         Symbol(Char(i + 2048))
     else
