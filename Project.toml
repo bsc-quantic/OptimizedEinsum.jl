@@ -4,7 +4,9 @@ authors = ["Sergio Sánchez Ramírez <sergio.sanchez.ramirez@bsc.es>"]
 version = "0.0.1"
 
 [deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+NamedDims = "356022a1-0364-5f58-8944-0da4b18d706f"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
