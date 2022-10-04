@@ -19,6 +19,8 @@ function __init__()
     pytype_mapping(oecontract.PathInfo, PathInfo)
 end
 
+include("ContractionTree.jl")
+
 struct PathInfo
     pyobj::PyObject
 end
