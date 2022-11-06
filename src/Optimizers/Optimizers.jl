@@ -7,7 +7,7 @@ function optimize end
 optimize(::Type{<:Optimizer}, inputs, output, size_dict) = error("`optimize` not implemented")
 optimize(::Optimizer, inputs, output, size_dict) = error("`optimize` not implemented")
 
-include("Optimal.jl")e
+include("Optimal.jl")
 include("Greedy.jl")
 include("Random.jl")
 
