@@ -1,0 +1,1 @@
+struct Optimal <: Optimizer end

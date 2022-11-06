@@ -1,0 +1,1 @@
+struct Greedy <: Optimizer end
