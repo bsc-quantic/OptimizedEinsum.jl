@@ -9,6 +9,7 @@ export largest_intermediate
 export contract, contract_path
 export rand_equation, get_symbol
 
+include("Counters.jl")
 include("Optimizers/Optimizers.jl")
 
 const oe = PyCall.PyNULL()
