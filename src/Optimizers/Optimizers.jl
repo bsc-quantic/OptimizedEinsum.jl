@@ -11,4 +11,7 @@ include("Optimal.jl")e
 include("Greedy.jl")
 include("Random.jl")
 
+export Optimizer, optimize
+export Optimal, Greedy
+
 end
