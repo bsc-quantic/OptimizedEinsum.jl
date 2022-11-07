@@ -9,6 +9,8 @@ optimize(::Optimizer, inputs, output, size_dict) = error("`optimize` not impleme
 
 include("Optimal.jl")
 include("Greedy.jl")
+include("DynamicProgramming.jl")
+include("Branch.jl")
 include("Random.jl")
 
 export Optimizer, optimize
