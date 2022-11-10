@@ -1,5 +1,6 @@
 using DataStructures: MutableBinaryMinHeap
 using Base: @kwdef
+using OptimizedEinsum: removedsize
 
 """
 Greedy contraction path solver.
@@ -10,7 +11,7 @@ Greedy contraction path solver.
 """
 @kwdef struct Greedy <: Optimizer
     choose_fn::Function = greedy_choose_simple
-    cost_fn::Function = cost_memory_removed
+    cost_fn::Function = removedsize
 end
 
 function optimize(::Type{Greedy}, inputs, output, size, kwargs...)
@@ -24,7 +25,7 @@ function optimize(config::Greedy, inputs, output, size)
     return ssa_to_linear(ssa_path)
 end
 
-function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simple, cost_fn=cost_memory_removed)
+function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simple, cost_fn=removedsize)
     # trivial case
     if length(inputs) == 1
         return [(0,)]
@@ -166,4 +167,3 @@ function greedy_choose_simple(queue, remaining)
     return cost, inds_i, inds_j, inds_k
 end
 
-cost_memory_removed(size_c, size_a, size_b, _, _, _) = size_c - size_a - size_b
