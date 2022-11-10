@@ -39,8 +39,7 @@ Evaluates the Einstein summation convention on the operands. A drop in
 replacement for NumPy's einsum function that optimizes the order of contraction
 to reduce overall scaling at the cost of several intermediate arrays.
 
-**Parameters:**
-
+# Parameters
 - **subscripts** - *(str)* Specifies the subscripts for summation.
 - **\\*operands** - *(list of array_like)* hese are the arrays for the operation.
 - **out** - *(array_like)* A output array in which set the sresulting output.
@@ -88,11 +87,11 @@ to reduce overall scaling at the cost of several intermediate arrays.
     :func:`contract_expression` for generating expressions which convert
     numpy arrays to and from the backend library automatically.
 
-**Returns:**
+# Returns
 
 - **out** - *(array_like)* The result of the einsum expression.
 
-**Notes:**
+# Notes
 
 This function should produce a result identical to that of NumPy's einsum
 function. The primary difference is ``contract`` will attempt to form
@@ -120,7 +119,6 @@ Find a contraction order `path`, without performing the contraction.
 - `operands` - *(list of array_like)* hese are the arrays for the operation.
 - `use_blas::Bool`: Do you use BLAS for valid operations, may use extra memory for more intermediates.
 - `optimize::Union{String,Vector{Symbol},Bool}`: Choose the type of path.
-
     - if a list is given uses this as the path.
     - `'optimal'` An algorithm that explores all possible ways of
       contracting the listed tensors. Scales factorially with the number of
@@ -147,7 +145,6 @@ Find a contraction order `path`, without performing the contraction.
       below 1sec.
 
 - **memory_limit** - *({None, int, 'max_input'} (default: `None`))* - Give the upper bound of the largest intermediate tensor contract will build.
-
     - None or -1 means there is no limit
     - `max_input` means the limit is set as largest input tensor
     - a positive integer is taken as an explicit limit on the number of elements
@@ -157,18 +154,18 @@ Find a contraction order `path`, without performing the contraction.
 
 - **shapes** - *(bool, optional)* Whether ``contract_path`` should assume arrays (the default) or array shapes have been supplied.
 
-**Returns:**
+# Returns
 
 - **path** - *(list of tuples)* The einsum path
 - **PathInfo** - *(str)* A printable object containing various information about the path found.
 
-**Notes:**
+# Notes
 
 The resulting path indicates which terms of the input contraction should be
 contracted first, the result of this contraction is then appended to the end of
 the contraction list.
 
-**Examples:**
+# Examples
 
 We can begin with a chain dot example. In this case, it is optimal to
 contract the b and c tensors represented by the first element of the path (1,
