@@ -1,6 +1,6 @@
 using DataStructures: MutableBinaryMinHeap
 using Base: @kwdef
-using OptimizedEinsum: removedsize
+using OptimizedEinsum: removedsize, ssa_to_linear
 
 """
 Greedy contraction path solver.
