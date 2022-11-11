@@ -11,6 +11,7 @@ export rand_equation, get_symbol
 
 include("Counters.jl")
 include("Utils.jl")
+include("Patterns.jl")
 include("Optimizers/Optimizers.jl")
 
 const oe = PyCall.PyNULL()
