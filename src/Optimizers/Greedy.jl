@@ -1,6 +1,6 @@
 using DataStructures: MutableBinaryMinHeap
 using Base: @kwdef
-using OptimizedEinsum: removedsize, ssa_to_linear
+using OptimizedEinsum: removedsize, ssa_to_linear, nonunique
 
 """
 Greedy contraction path solver.
@@ -151,11 +151,6 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     end
 
     return ssa_path
-end
-
-function nonunique(itr)
-    xs = sort(itr, by=collect)
-    return Set(a for (a, b) ∈ zip(xs, xs[2:end]) if a == b)
 end
 
 function greedy_choose_simple(queue, remaining)
