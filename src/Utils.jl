@@ -1,3 +1,6 @@
+using Random
+using Base.Iterators: take, drop, repeated
+
 const symbols_base = [Symbol(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]
 
 """
@@ -6,7 +9,7 @@ const symbols_base = [Symbol(c) for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL
 Get the symbol corresponding to int ``i`` - runs through the usual 52 letters before resorting to unicode characters, starting at ``Char(192)`` and skipping surrogates.
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using OptimizedEinsum: get_symbol)
 julia> get_symbol(2)
 :b
 
@@ -99,12 +102,12 @@ end
 
 Convert a path with static single assignment ids to a path with recycled linear ids.
 
-```jldoctest
+```jldoctest; setup = :(using OptimizedEinsum: ssa_to_linear)
 julia> ssa_to_linear([(1,4), (3,5), (2,6)])
-3-element Vector{Tuple{Int64, Int64}}:
- (1, 4)
- (2, 3)
- (1, 2)
+3-element Vector{Vector{Int64}}:
+ [1, 4]
+ [2, 3]
+ [1, 2]
 ```
 """
 function ssa_to_linear(ssa_path)
@@ -128,12 +131,12 @@ end
 
 Convert a path with recycled linear ids to a path with static single assignment ids.
 
-```jldoctest
+```jldoctest; setup = :(using OptimizedEinsum: linear_to_ssa)
 julia> linear_to_ssa([[1,4], [2,3], [1,2]])
-3-element Vector{Tuple{Int64, Int64}}:
- (1, 4)
- (3, 5)
- (2, 6)
+3-element Vector{Vector{Int64}}:
+ [1, 4]
+ [3, 5]
+ [2, 6]
 ```
 """
 function linear_to_ssa(path::Vector{Vector{Int}})
