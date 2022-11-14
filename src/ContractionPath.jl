@@ -1,4 +1,5 @@
 using Base.Iterators: flatten
+import Base: maximum
 
 struct ContractionPath
     ssa_path::Vector{Vector{Int}}
@@ -34,3 +35,14 @@ function flops(path::ContractionPath)
         flops(a, b, path.size, path.output)
     end
 end
+
+function maximum(fn, path::ContractionPath)
+    signs = signatures(path)
+    mapreduce(max, path.ssa_path) do (i, j)
+        a = signs[i]
+        b = signs[j]
+        fn(a, b, path.size, path.output)
+    end
+end
+
+maximum(path::ContractionPath) = maximum(flops, path)
