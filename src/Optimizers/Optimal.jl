@@ -1,5 +1,5 @@
 using Combinatorics
-using OptimizedEinsum: ssa_to_linear
+using OptimizedEinsum: ssa_to_linear, flops
 
 @doc raw"""
 `Optimal` contraction path solver guarantees to find the optimal contraction path **always**, but at the cost of factorial ``\mathcal{O}(n!)`` time complexity.
