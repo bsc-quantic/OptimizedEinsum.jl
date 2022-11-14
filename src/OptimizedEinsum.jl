@@ -5,7 +5,7 @@ include("Utils.jl")
 include("ContractionPath.jl")
 include("Optimizers/Optimizers.jl")
 
-export flops, removedsize
+export flops, removedsize, rank
 export rand_equation, get_symbol
 export ContractionPath
 import .Optimizers: optimize, Optimal, Greedy
