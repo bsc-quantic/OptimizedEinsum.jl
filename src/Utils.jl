@@ -181,6 +181,21 @@ function ssa_path_cost(ssa_path, inputs, output, size)
     return cost, max_size
 end
 
+function pathtype(path)
+    already_seen = Set{Int}()
+
+    for (a, b) ∈ path
+        if a ∈ already_seen || b ∈ already_seen
+            return :linear
+        end
+
+        push!(already_seen, a)
+        push!(already_seen, b)
+    end
+
+    return :ssa
+end
+
 function nonunique(itr)
     xs = sort(itr, by=collect)
     return Set(a for (a, b) ∈ zip(xs, xs[2:end]) if a == b)
