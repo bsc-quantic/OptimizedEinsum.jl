@@ -83,8 +83,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         inds_k = symdiff(inds_i, inds_j) ∪ ∩(output ∪ high_ocurrent_inds, inds_i, inds_j)
 
         # compute heuristic cost of candidate
-        (size_i, size_j, size_k) = [prod(size[ind] for ind ∈ inds) for inds ∈ (inds_i, inds_j, inds_k)]
-        cost = cost_fn(size_k, size_i, size_j, inds_k, inds_i, inds_j)
+        cost = cost_fn(inds_i, inds_j, size, output)
 
         # add candidate to queue
         push!(queue, (cost, inds_i, inds_j, inds_k))
@@ -121,8 +120,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
                 inds_k = symdiff(inds_i, inds_j) ∪ ∩(output ∪ high_ocurrent_inds, inds_i, inds_j)
 
                 # compute heuristic cost of candidate
-                (size_i, size_j, size_k) = [prod(size[ind] for ind ∈ inds) for inds ∈ (inds_i, inds_j, inds_k)]
-                cost = cost_fn(size_k, size_i, size_j, inds_k, inds_i, inds_j)
+                cost = cost_fn(inds_i, inds_j, size, output)
 
                 # add candidate to queue
                 push!(queue, (cost, inds_i, inds_j, inds_k))
