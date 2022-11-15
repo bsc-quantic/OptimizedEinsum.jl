@@ -46,3 +46,48 @@ function maximum(fn, path::ContractionPath)
 end
 
 maximum(path::ContractionPath) = maximum(flops, path)
+
+children(path::ContractionPath, i) = (n = length(path.inputs); i > n ? path.ssa_path[i-n] : Int[])
+
+function subtree(path::ContractionPath, i)
+    if i <= length(path.inputs)
+        return nothing
+    end
+
+    # select subnodes
+    queue = [i]
+    for n in queue
+        kids = children(path, n)
+        if !isempty(kids)
+            append!(queue, kids)
+        end
+    end
+
+    # get final signature and subinds
+    signatures = Dict(n => path.inputs[n] for n in Iterators.filter(<=(length(path.inputs)), queue))
+
+    sort!(queue)
+    for n in Iterators.filter(>(length(path.inputs)), queue)
+        (x, y) = children(path, n)
+        a = signatures[x]
+        b = signatures[y]
+
+        sign = symdiff(a, b) ∪ ∩(path.output, a, b)
+
+        push!(signatures, n => sign)
+    end
+
+    inds = flatten(values(signatures)) |> collect
+    size = filter(x -> ((k, _) = x; k ∈ inds), path.size)
+
+    output = signatures[i]
+    inputs = [path.inputs[i] for i in queue if i <= length(path.inputs)]
+
+    # translate SSA path
+    mapping = Dict{Int,Int}(i => j for (i, j) in zip(queue, Iterators.countfrom(1)))
+
+    ssa_path = [map(x -> mapping[x], path.ssa_path[i-length(path.inputs)])
+                for i in queue if i > length(path.inputs)]
+
+    ContractionPath(ssa_path, inputs, output, size)
+end
