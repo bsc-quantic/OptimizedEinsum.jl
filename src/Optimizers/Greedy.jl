@@ -1,6 +1,6 @@
 using DataStructures: BinaryMinHeap
 using Base: @kwdef
-using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath
+using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath, popvalue!
 using Combinatorics: combinations
 
 """
@@ -58,7 +58,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     ssa_path = Vector{NTuple{2,Int}}()
 
     # step 1: deduplicate shapes by eagerly computing Hadamard products (i.e. element-wise multiplication)
-    remaining = Dict{Set{Symbol},Int}(inds => i for (i, inds) ∈ enumerate(inputs))
+    remaining = Dict{Int,Set{Symbol}}(i => inds for (i, inds) ∈ enumerate(inputs))
     ssa_ids = length(inputs) + 1
 
     for input ∈ nonunique(inputs)
@@ -67,7 +67,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
 
             new_ssa_id = ssa_ids
             ssa_ids += 1
-            remaining[i] = new_ssa_id
+            remaining[new_ssa_id] = i
             return (new_ssa_id, nothing)
         end
     end
@@ -75,19 +75,19 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # step 2: greedily compute contractions to minimize `cost_fn` (i.e. maximize `removed_size`)
 
     # list of indices to contract
-    target_inds = setdiff(unique(Iterators.flatten(keys(remaining))), output)
+    target_inds = setdiff(unique(Iterators.flatten(values(remaining))), output)
 
     # histogram of ocurrences of target indices
     # i.e. a index can only be contracted if it only appears in 2 tensors
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
-    target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(keys(remaining))))
+    target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
 
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
     for ind ∈ target_inds
-        xs = filter(∋(ind), keys(remaining)) |> collect
+        xs = Iterators.filter(∋(ind), values(remaining)) |> collect
         for (a, b) ∈ combinations(xs, 2)
             # result label signature
             c = symdiff(a, b) ∪ ∩(output ∪ high_ocurrent_inds, a, b)
@@ -106,51 +106,61 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         if winner == nothing
             continue
         end
-        (inds_i, inds_j, inds_k) = meta(winner)
+        (a, b, c) = meta(winner)
 
         # append winner to contraction path
-        ssa_id_i = pop!(remaining, inds_i)
-        ssa_id_j = pop!(remaining, inds_j)
+        ssa_id_i = popvalue!(remaining, a)
+        ssa_id_j = popvalue!(remaining, b)
         push!(ssa_path, (ssa_id_i, ssa_id_j))
-        remaining[inds_k] = ssa_ids
-        ssa_ids += 1
+
+        # update ocurrence histogram
+        for ind ∈ [a..., b...]
+            target_inds_histogram[ind] -= 1
+        end
+
+        for ind ∈ c
+            target_inds_histogram[ind] += 1
+        end
+
+        high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
 
         # update candidate queue
-        neighbours = Set(inds for inds ∈ keys(remaining) if !isdisjoint(inds, inds_k) && inds != inds_k)
+        neighbours = Set(inds for inds ∈ values(remaining) if !isdisjoint(inds, c))
         if !isempty(neighbours)
-            inds_i = inds_k
-            for inds_j ∈ neighbours
+            for n ∈ neighbours
                 # output inds and inds with an ocurrence higher or equal to 3 cannot be contracted
                 # (in the latest, a Hadamard product can be performed)
-                high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
-                inds_k = symdiff(inds_i, inds_j) ∪ ∩(output ∪ high_ocurrent_inds, inds_i, inds_j)
+                out = symdiff(c, n) ∪ ∩(output ∪ high_ocurrent_inds, c, n)
 
                 # compute heuristic cost of candidate
-                cost = cost_fn(inds_i, inds_j, size, output)
+                cost = cost_fn(c, n, size, output)
 
                 # add candidate to queue
-                push!(queue, HeapNode(cost, (inds_i, inds_j, inds_k)))
-
-                # update ocurrence histogram
-                for ind ∈ ∩(target_inds, inds_i, inds_j)
-                    target_inds_histogram[ind] -= 1
-                end
+                push!(queue, HeapNode(cost, (c, n, out)))
             end
         end
+
+        remaining[ssa_ids] = c
+        ssa_ids += 1
     end
 
     # step 3: greedily compute outer products
-    queue = MutableBinaryMinHeap([(prod(size[ind] for ind ∈ inds ∩ output), ssa_id, inds) for (inds, ssa_id) ∈ remaining])
+    queue = BinaryMinHeap([(prod(ind -> size[ind], inds ∩ output, init=1), ssa_id, inds) for (ssa_id, inds) ∈ remaining])
 
     while ((_, ssa_id_i, inds_i) = pop!(queue); !isempty(queue))
         (_, ssa_id_j, inds_j) = pop!(queue)
+
+        delete!(remaining, ssa_id_i)
+        delete!(remaining, ssa_id_j)
 
         ssa_id_i, ssa_id_j = minmax(ssa_id_i, ssa_id_j)
         push!(ssa_path, (ssa_id_i, ssa_id_j))
 
         inds_k = (inds_i ∪ inds_j) ∩ output
-        cost = prod(size[ind] for ind ∈ inds_k)
+        cost = prod(ind -> size[ind], inds_k, init=1)
 
+        ssa_id_k = ssa_ids
+        ssa_ids += 1
         push!(queue, (cost, ssa_id_k, inds_k))
     end
 
@@ -161,7 +171,7 @@ function greedy_choose_simple!(queue, remaining)
     node = pop!(queue)
     a, b, _ = meta(node)
 
-    if any(inds ∉ keys(remaining) for inds ∈ [a, b])
+    if any(inds ∉ values(remaining) for inds ∈ [a, b])
         return nothing
     end
 

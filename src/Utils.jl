@@ -200,3 +200,20 @@ function nonunique(itr)
     xs = sort(itr, by=collect)
     return Set(a for (a, b) ∈ zip(xs, xs[2:end]) if a == b)
 end
+
+"""
+    popvalue!(d, v)
+
+Like `pop!` but searchs by value and returns the key.
+"""
+function popvalue!(d, v)
+    for (k, vi) in d
+        if vi == v
+            delete!(d, k)
+            return k
+        end
+    end
+
+    return nothing
+end
+
