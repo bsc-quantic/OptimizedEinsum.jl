@@ -86,7 +86,8 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
-    for xs ∈ Iterators.map(ind -> filter(∋(ind), keys(remaining)), target_inds)
+    for ind ∈ target_inds
+        xs = filter(∋(ind), keys(remaining)) |> collect
         for (a, b) ∈ combinations(xs, 2)
             # result label signature
             c = symdiff(a, b) ∪ ∩(output ∪ high_ocurrent_inds, a, b)
