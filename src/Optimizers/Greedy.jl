@@ -29,9 +29,11 @@ end
 struct HeapNode{C,M}
     cost::C
     meta::M
-end
 
-HeapNode(cost::C, meta::M) where {C,M} = HeapNode{C,M}(cost, meta)
+    function HeapNode(cost::C, meta::M) where {C,M}
+        new{C,M}(cost, meta)
+    end
+end
 
 Base.isequal(a::HeapNode, b::HeapNode) = isequal(a.cost, b.cost)
 Base.isless(a::HeapNode, b::HeapNode) = isless(a.cost, b.cost)
