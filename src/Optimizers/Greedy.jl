@@ -80,7 +80,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # histogram of ocurrences of target indices
     # i.e. a index can only be contracted if it only appears in 2 tensors
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
-    target_inds_histogram = histogram(Iterators.filter(∋(target_inds), Iterators.flatten(keys(remaining))))
+    target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(keys(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
 
     # generate candidate pairwise contractions
