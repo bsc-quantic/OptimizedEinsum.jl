@@ -2,7 +2,7 @@ using Base.Iterators: flatten
 import Base: maximum
 
 struct ContractionPath
-    ssa_path::Vector{Vector{Int}}
+    ssa_path::Vector{NTuple{2,Int}}
     inputs::Vector{Vector{Symbol}}
     output::Vector{Symbol}
     size::Dict{Symbol,Int}

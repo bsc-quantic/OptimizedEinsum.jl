@@ -10,7 +10,7 @@ function optimize(::Type{Optimal}, inputs, output, size)
     n = length(inputs)
 
     best_flops = Ref(typemax(Int128)) # TODO use `BigInt`?
-    best_ssa_path = Ref{Vector{Vector{Int}}}()
+    best_ssa_path = Ref{Vector{NTuple{2,Int}}}()
 
 
     function _iterate(path, inputs, remaining, flops_cur)
@@ -40,7 +40,7 @@ function optimize(::Type{Optimal}, inputs, output, size)
 
             # descend one level fixing `candidate`
             _iterate(
-                vcat(path, [[i, j]]), # path
+                vcat(path, [(i, j)]), # path
                 vcat(inputs, [inds_ij]), # inputs
                 setdiff(remaining, i, j) ∪ (length(inputs) + 1), # remaining
                 flops_candidate, # flops_cur
@@ -48,7 +48,7 @@ function optimize(::Type{Optimal}, inputs, output, size)
         end
     end
 
-    path = Vector{Vector{Int}}()
+    path = Vector{NTuple{2,Int}}()
     _iterate(path, inputs, Set(1:n), 0)
 
     ContractionPath(best_ssa_path[], inputs, output, size)
