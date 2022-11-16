@@ -1,4 +1,4 @@
-using DataStructures: MutableBinaryMinHeap
+using DataStructures: BinaryMinHeap
 using Base: @kwdef
 using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath
 
@@ -10,7 +10,7 @@ Greedy contraction path solver.
 3. Greedily compute outer products.
 """
 @kwdef struct Greedy <: Optimizer
-    choose_fn::Function = greedy_choose_simple
+    choose_fn::Function = greedy_choose_simple!
     cost_fn::Function = removedsize
 end
 
@@ -26,14 +26,25 @@ function optimize(config::Greedy, inputs, output, size)
     ContractionPath(ssa_path, inputs, output, size)
 end
 
-function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simple, cost_fn=removedsize)
+struct HeapNode{C,M}
+    cost::C
+    meta::M
+end
+
+HeapNode(cost::C, meta::M) where {C,M} = HeapNode{C,M}(cost, meta)
+
+Base.isequal(a::HeapNode, b::HeapNode) = isequal(a.cost, b.cost)
+Base.isless(a::HeapNode, b::HeapNode) = isless(a.cost, b.cost)
+meta(node::HeapNode) = node.meta
+
+function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simple!, cost_fn=removedsize)
     # trivial case
     if length(inputs) == 1
         return [(0,)]
     end
 
     # `choose_fn` chooses which contraction candidate to take
-    push_all = choose_fn == greedy_choose_simple ? false : true
+    push_all = !(choose_fn == greedy_choose_simple!)
 
     # only care about indices, not its order
     inputs = map(Set, inputs)
@@ -69,14 +80,10 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     target_inds_histogram = Dict(ind => count(∋(ind), keys(remaining)) for ind ∈ target_inds)
 
     # generate candidate pairwise contractions
-    queue = MutableBinaryMinHeap{Tuple{Int,Set{Symbol},Set{Symbol},Set{Symbol}}}()
+    queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
     for target_ind ∈ target_inds
-        # avoid adding the candidate twice because `inds_*` commute
         (inds_i, inds_j) = filter(∋(target_ind), keys(remaining))
-        if inds_i > inds_j
-            continue
-        end
 
         # output inds and inds with an ocurrence higher or equal to 3 cannot be contracted
         # (in the latest, a Hadamard product can be performed)
@@ -87,7 +94,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         cost = cost_fn(inds_i, inds_j, size, output)
 
         # add candidate to queue
-        push!(queue, (cost, inds_i, inds_j, inds_k))
+        push!(queue, HeapNode(cost, (inds_i, inds_j, inds_k)))
 
         # update ocurrence histogram
         for ind ∈ inds_i ∩ inds_j
@@ -101,7 +108,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         if winner == nothing
             continue
         end
-        (cost, inds_i, inds_j, inds_k) = winner
+        (inds_i, inds_j, inds_k) = meta(winner)
 
         # append winner to contraction path
         ssa_id_i = pop!(remaining, inds_i)
@@ -124,7 +131,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
                 cost = cost_fn(inds_i, inds_j, size, output)
 
                 # add candidate to queue
-                push!(queue, (cost, inds_i, inds_j, inds_k))
+                push!(queue, HeapNode(cost, (inds_i, inds_j, inds_k)))
 
                 # update ocurrence histogram
                 for ind ∈ ∩(target_inds, inds_i, inds_j)
@@ -152,12 +159,14 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     return ssa_path
 end
 
-function greedy_choose_simple(queue, remaining)
-    cost, inds_i, inds_j, inds_k = pop!(queue)
+function greedy_choose_simple!(queue, remaining)
+    node = pop!(queue)
+    inds_i, inds_j, _ = meta(node)
+
     if any(inds ∉ keys(remaining) for inds ∈ [inds_i, inds_j])
         return nothing
     end
 
-    return cost, inds_i, inds_j, inds_k
+    return node
 end
 
