@@ -1,6 +1,6 @@
 using DataStructures: MutableBinaryMinHeap
 using Base: @kwdef
-using OptimizedEinsum: removedsize, ssa_to_linear, nonunique
+using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath
 
 """
 Greedy contraction path solver.
@@ -22,7 +22,8 @@ end
 function optimize(config::Greedy, inputs, output, size)
     # TODO memory limit?
     ssa_path = ssa_greedy_optimize(inputs, output, size, config.choose_fn, config.cost_fn)
-    return ssa_to_linear(ssa_path)
+
+    ContractionPath(ssa_path, inputs, output, size)
 end
 
 function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simple, cost_fn=removedsize)

@@ -1,5 +1,5 @@
 using Combinatorics
-using OptimizedEinsum: ssa_to_linear, flops
+using OptimizedEinsum: ssa_to_linear, flops, ContractionPath
 
 @doc raw"""
 `Optimal` contraction path solver guarantees to find the optimal contraction path **always**, but at the cost of factorial ``\mathcal{O}(n!)`` time complexity.
@@ -51,5 +51,5 @@ function optimize(::Type{Optimal}, inputs, output, size)
     path = Vector{Vector{Int}}()
     _iterate(path, inputs, Set(1:n), 0)
 
-    return ssa_to_linear(best_ssa_path[])
+    ContractionPath(best_ssa_path[], inputs, output, size)
 end
