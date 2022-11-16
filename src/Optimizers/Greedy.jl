@@ -1,6 +1,7 @@
 using DataStructures: BinaryMinHeap
 using Base: @kwdef
 using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath
+using Combinatorics: combinations
 
 """
 Greedy contraction path solver.
@@ -79,28 +80,22 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # histogram of ocurrences of target indices
     # i.e. a index can only be contracted if it only appears in 2 tensors
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
-    target_inds_histogram = Dict(ind => count(∋(ind), keys(remaining)) for ind ∈ target_inds)
+    target_inds_histogram = histogram(Iterators.filter(∋(target_inds), Iterators.flatten(keys(remaining))))
+    high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
 
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
-    for target_ind ∈ target_inds
-        (inds_i, inds_j) = filter(∋(target_ind), keys(remaining))
+    for xs ∈ Iterators.map(ind -> filter(∋(ind), keys(remaining)), target_inds)
+        for (a, b) ∈ combinations(xs, 2)
+            # result label signature
+            c = symdiff(a, b) ∪ ∩(output ∪ high_ocurrent_inds, a, b)
 
-        # output inds and inds with an ocurrence higher or equal to 3 cannot be contracted
-        # (in the latest, a Hadamard product can be performed)
-        high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
-        inds_k = symdiff(inds_i, inds_j) ∪ ∩(output ∪ high_ocurrent_inds, inds_i, inds_j)
+            # compute heuristic cost of candidate
+            cost = cost_fn(a, b, size, output)
 
-        # compute heuristic cost of candidate
-        cost = cost_fn(inds_i, inds_j, size, output)
-
-        # add candidate to queue
-        push!(queue, HeapNode(cost, (inds_i, inds_j, inds_k)))
-
-        # update ocurrence histogram
-        for ind ∈ inds_i ∩ inds_j
-            target_inds_histogram[ind] -= 1
+            # add candidate to queue
+            push!(queue, HeapNode(cost, (a, b, c)))
         end
     end
 
@@ -172,3 +167,12 @@ function greedy_choose_simple!(queue, remaining)
     return node
 end
 
+function histogram(itr)
+    # NOTE maybe use `Base.IteratorEltype` for using `Any`?
+    hist = Dict{eltype(itr),Int}()
+    for el in itr
+        hist[el] = get(hist, el, 0) + 1
+    end
+
+    hist
+end
