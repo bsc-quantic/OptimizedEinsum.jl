@@ -159,9 +159,9 @@ end
 
 function greedy_choose_simple!(queue, remaining)
     node = pop!(queue)
-    inds_i, inds_j, _ = meta(node)
+    a, b, _ = meta(node)
 
-    if any(inds ∉ keys(remaining) for inds ∈ [inds_i, inds_j])
+    if any(inds ∉ keys(remaining) for inds ∈ [a, b])
         return nothing
     end
 
