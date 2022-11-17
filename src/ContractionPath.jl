@@ -54,6 +54,19 @@ function flops(path::ContractionPath)
     end
 end
 
+function flops(path::ContractionPath, i)
+    n = length(path.inputs)
+    if 1 <= i <= n
+        return 0.0
+    end
+
+    (l, r) = path.ssa_path[i-n]
+    a = inds(path, l)
+    b = inds(path, r)
+
+    return flops(a, b, path.size, path.output)
+end
+
 function maximum(fn, path::ContractionPath)
     signs = signatures(path)
     mapreduce(max, path.ssa_path) do (i, j)
