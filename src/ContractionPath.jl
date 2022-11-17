@@ -29,6 +29,20 @@ function signatures(path::ContractionPath)
     inputs
 end
 
+function inds(path::ContractionPath, i)
+    n = length(path.inputs)
+
+    if 1 <= i <= n
+        return path.inputs[i]
+    end
+
+    (l, r) = path.ssa_path[i-n]
+    a = inds(path, l)
+    b = inds(path, r)
+
+    return symdiff(a, b) ∪ ∩(path.output, a, b)
+end
+
 function flops(path::ContractionPath)
     signs = signatures(path)
     mapreduce(+, path.ssa_path) do (i, j)
