@@ -17,6 +17,7 @@ makedocs(
         "Path Solvers"=>Any[
             "Optimal"=>"optimal.md",
             "Greedy"=>"greedy.md",
-        ]
+        ],
+        "Visualization"=>"viz.md",
     ]
 )
