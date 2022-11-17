@@ -18,6 +18,8 @@ struct ContractionPath
     end
 end
 
+Base.summary(io::IO, path::ContractionPath) = print(io, "ContractionPath(output=$(isempty(path.output) ? "[]" : path.output), flops=$(flops(path)))")
+
 function signatures(path::ContractionPath)
     inputs = copy(path.inputs)
     for (i, j) ∈ path.ssa_path
