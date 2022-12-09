@@ -135,6 +135,10 @@ function draw(path::ContractionPath; kwargs...)
         [log10(size(path, i)) for i in 1:ne(graph)]
     end
 
+    get!(kwargs, :arrow_size) do
+        [3 * log10(size(path, i)) for i in 1:ne(graph)]
+    end
+
     get!(kwargs, :edge_color) do
         [log10(size(path, i)) for i in 1:ne(graph)]
     end
