@@ -3,6 +3,7 @@ module OptimizedEinsum
 include("Counters.jl")
 include("Utils.jl")
 include("ContractionPath.jl")
+include("Visualization.jl")
 include("Optimizers/Optimizers.jl")
 
 export flops, removedsize, rank
