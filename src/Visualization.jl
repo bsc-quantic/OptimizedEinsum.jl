@@ -4,11 +4,9 @@ using GraphMakie
 
 const DEFAULT_LEAF_NODE_SIZE = 5.0
 
-const ContractionPathPlot = GraphPlot{Tuple{ContractionPath}}
-
 Makie.plottype(::ContractionPath) = GraphPlot
 
-function Makie.plot!(P::ContractionPathPlot; kwargs...)
+function Makie.plot!(P::GraphPlot{Tuple{ContractionPath}}; kwargs...)
     path = P[1][]
     graph = SimpleDiGraph([Edge(from, to) for (pair, to) in zip(path.ssa_path, Iterators.countfrom(length(path.inputs) + 1)) for from in pair])
 
