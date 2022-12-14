@@ -10,17 +10,12 @@ Greedy contraction path solver.
 2. Greedily compute contractions to maximize `removed_size`.
 3. Greedily compute outer products.
 """
-@kwdef struct Greedy <: Optimizer
+@kwdef struct Greedy <: Solver
     choose_fn::Function = greedy_choose_simple!
     cost_fn::Function = removedsize
 end
 
-function optimize(::Type{Greedy}, inputs, output, size, kwargs...)
-    config = Greedy(kwargs...)
-    optimize(config, inputs, output, size)
-end
-
-function optimize(config::Greedy, inputs, output, size)
+function contractpath(config::Greedy, inputs, output, size)
     # TODO memory limit?
     ssa_path = ssa_greedy_optimize(inputs, output, size, config.choose_fn, config.cost_fn)
 

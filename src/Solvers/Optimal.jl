@@ -4,9 +4,9 @@ using OptimizedEinsum: ssa_to_linear, flops, ContractionPath
 @doc raw"""
 `Optimal` contraction path solver guarantees to find the optimal contraction path **always**, but at the cost of factorial ``\mathcal{O}(n!)`` time complexity.
 """
-struct Optimal <: Optimizer end
+struct Optimal <: Solver end
 
-function optimize(::Type{Optimal}, inputs, output, size)
+function contractpath(::Optimal, inputs, output, size)
     n = length(inputs)
 
     best_flops = Ref(typemax(Int128)) # TODO use `BigInt`?

@@ -4,12 +4,12 @@ include("Counters.jl")
 include("Utils.jl")
 include("ContractionPath.jl")
 include("Visualization.jl")
-include("Optimizers/Optimizers.jl")
+include("Solvers/Solvers.jl")
 
 export flops, removedsize, rank
 export rand_equation, get_symbol
 export ContractionPath, subtree, children, inds, draw
-import .Optimizers: optimize, Optimal, Greedy
-export optimize, Optimal, Greedy
+import .Solvers: contractpath, Optimal, Greedy
+export contractpath, Optimal, Greedy
 
 end

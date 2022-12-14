@@ -1,6 +1,6 @@
-abstract type RandomOptimizer <: Optimizer end
+abstract type RandomSolver <: Solver end
 
-struct RandomGreedy <: RandomOptimizer
+struct RandomGreedy <: RandomSolver
     temperature::Float32
     rel_temperature::Bool
     nbranch::Int
