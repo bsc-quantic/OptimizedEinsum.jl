@@ -62,7 +62,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
 
             new_ssa_id = ssa_ids
             ssa_ids += 1
-            remaining[new_ssa_id] = i
+            remaining[new_ssa_id] = input
             return (new_ssa_id, nothing)
         end
     end
