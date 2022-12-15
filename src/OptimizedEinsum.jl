@@ -9,7 +9,7 @@ include("Solvers/Solvers.jl")
 export flops, removedsize, rank
 export rand_equation, get_symbol
 export ContractionPath, subtree, children, inds, draw
-import .Solvers: contractpath, Optimal, Greedy
-export contractpath, Optimal, Greedy
+import .Solvers: contractpath, Optimal, Greedy, Solver
+export contractpath, Optimal, Greedy, Solver
 
 end
