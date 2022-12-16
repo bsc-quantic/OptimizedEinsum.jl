@@ -139,7 +139,7 @@ julia> linear_to_ssa([[1,4], [2,3], [1,2]])
  [2, 6]
 ```
 """
-function linear_to_ssa(path::Vector{Vector{Int}})
+function linear_to_ssa(path)
     n = mapreduce(length, +, path) - length(path) + 1
     linear_to_ssa = collect(1:n)
     new_ids = Iterators.countfrom(n + 1)
