@@ -1,5 +1,5 @@
 using Base.Iterators: flatten
-import Base: maximum
+import Base: maximum, length, IteratorSize
 
 struct ContractionPath
     ssa_path::Vector{NTuple{2,Int}}
@@ -44,6 +44,10 @@ function inds(path::ContractionPath, i)
 end
 
 Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], inds(path, i), init=1)
+
+IteratorSize(::ContractionPath) = Base.HasLength()
+
+length(path::ContractionPath) = length(path.ssa_path) - 1
 
 Base.iterate(path::ContractionPath, state=0) =
     if state < length(path.ssa_path)
