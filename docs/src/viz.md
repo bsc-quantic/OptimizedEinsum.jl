@@ -15,7 +15,8 @@ using WGLMakie
 ### 3D visualization
 
 ```julia
+using Makie
 using NetworkLayout
 
-draw(path, layout=Spring(dim=3))
+plot(path, layout=Spring(dim=3))
 ```
