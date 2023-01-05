@@ -59,25 +59,24 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     for input ∈ nonunique(inputs)
         reduce(Iterators.filter(isequal(input) ∘ last, enumerate(inputs))) do (i, _), (j, _)
             push!(ssa_path, (i, j))
-
+            delete!(remaining, i)
+            delete!(remaining, j)
             new_ssa_id = ssa_ids
             ssa_ids += 1
             remaining[new_ssa_id] = input
+
             return (new_ssa_id, nothing)
         end
     end
-
     # step 2: greedily compute contractions to minimize `cost_fn` (i.e. maximize `removed_size`)
 
     # list of indices to contract
     target_inds = setdiff(unique(Iterators.flatten(values(remaining))), output)
-
     # histogram of ocurrences of target indices
     # i.e. a index can only be contracted if it only appears in 2 tensors
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
-
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
@@ -98,7 +97,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     while !isempty(queue)
         # select candidate
         winner = choose_fn(queue, remaining)
-        if winner == nothing
+        if winner === nothing
             continue
         end
         (a, b, c) = meta(winner)
