@@ -53,7 +53,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     ssa_path = Vector{NTuple{2,Int}}()
 
     # step 1: deduplicate shapes by eagerly computing Hadamard products (i.e. element-wise multiplication)
-    remaining = Dict{Int,Set{Symbol}}(i => inds for (i, inds) ∈ enumerate(inputs)) # key -> ssa_id
+    remaining = Dict{Int,Set{Symbol}}(i => inds for (i, inds) ∈ enumerate(inputs))
     ssa_ids = length(inputs) + 1
 
     for input ∈ nonunique(inputs)
