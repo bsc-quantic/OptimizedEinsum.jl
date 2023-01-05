@@ -77,7 +77,6 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
-    # target_inds_histogram[:c] = 3
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
 
