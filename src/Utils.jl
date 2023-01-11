@@ -175,7 +175,7 @@ function ssa_path_cost(ssa_path, inputs, output, size)
         append!(inputs, [inds_ij])
 
         cost += flops_ij
-        if (length(inds_ij) > 0)
+        if length(inds_ij) > 0
             max_size = max(max_size, mapreduce(ind -> size[ind], *, inds_ij))
         end
     end
