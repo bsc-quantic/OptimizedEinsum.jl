@@ -166,16 +166,16 @@ Compute the flops and max size of an ssa path.
 function ssa_path_cost(ssa_path, inputs, output, size)
     inputs = copy(inputs)
     cost = Int128(0)
-    max_size = typemax(Int)
+    max_size = Int(1)
 
     for (i, j) in ssa_path
         a, b = inputs[i], inputs[j]
         inds_ij = symdiff(a, b) ∪ ∩(output, a, b)
         flops_ij = flops(a, b, size, output)
-        append!(inputs, inds_ij)
+        append!(inputs, [inds_ij])
 
         cost += flops_ij
-        max_size = max(max_size, mapreduce(ind -> size[ind], *, inds_ij))
+        max_size = max(max_size, mapreduce(ind -> size[ind], *, inds_ij; init=1))
     end
 
     return cost, max_size
