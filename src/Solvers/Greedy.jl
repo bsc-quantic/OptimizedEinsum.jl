@@ -2,7 +2,8 @@ using DataStructures: BinaryMinHeap
 using Base: @kwdef
 using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath, popvalue!
 using Combinatorics: combinations
-
+using Random: seed!
+using Distributions: Categorical
 """
 Greedy contraction path solver.
 
@@ -78,7 +79,11 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
     # generate candidate pairwise contractions
-    queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
+    if cost_fn == removedsize
+        queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
+    else
+        queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
+    end
 
     for ind ∈ target_inds
         xs = Iterators.filter(∋(ind), values(remaining)) |> collect
@@ -169,6 +174,72 @@ function greedy_choose_simple!(queue, remaining)
         return nothing
     end
 
+    return node
+end
+
+
+function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_temperature=true)
+    n = 0
+    choices = Vector{HeapNode}()
+    # println("queue: $queue")
+
+    while (!isempty(queue) && n < nbranch)
+        node = pop!(queue)
+        # println("node: $node")
+        a, b, c = meta(node)
+        # println("a, b, = $a, $b")
+
+        # println("a: $a, b: $b, c: $c")
+        # println("remaining: $remaining")
+        if any(inds ∉ values(remaining) for inds ∈ [a, b])
+            # println("continue")
+            continue
+        end
+        push!(choices, node)
+        n += 1
+    end
+
+    if n == 0
+        return nothing
+    elseif n == 1
+        return choices[1]
+    end
+
+    costs = [choice.cost for choice in choices]
+    # println("costs: $costs")
+    cmin = costs[1]
+    # println("cmin: $cmin")
+
+    rel_temperature ? temperature *= max(1, abs(cmin)) : nothing
+
+    if temperature == 0.
+        energies = [c == cmin ? 1 : 0 for c in costs]
+    else
+        energies = [exp(-(c - cmin) / temperature) for c in costs]
+    end
+    # println("Energies: $energies")
+
+    energies = [energy/sum(energies) for energy in energies] # normalize the energies to one
+
+    # randomly choose a contraction based on energies
+    (chosen, ) = range(1,n)[rand(Categorical(energies))]
+
+    node = choices[chosen]
+    # println("choises_before: $choices")
+    deleteat!(choices, chosen)
+    # println("choises_after: $choices")
+
+    # println("chosen: $chosen, node: $node")
+
+    # put the other choice back in the heap
+    queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
+    for other in choices
+        push!(queue, other)
+    end
+
+
+    # println("queuelast: $queue")
+    # println("return: $node")
     return node
 end
 
