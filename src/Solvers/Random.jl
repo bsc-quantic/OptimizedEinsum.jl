@@ -8,10 +8,10 @@ abstract type RandomSolver <: Solver end
 @kwdef struct RandomGreedy <: RandomSolver
     temperature::Float32 = 1.
     rel_temperature::Bool = true
-    nbranch::Int = 1
+    nbranch::Int = 8
     max_time::Number = 100
-    repeats::Int = 36
-    choose_fn::Function = greedy_choose_thermal!
+    repeats::Int = 128
+    choose_fn::Function = (x, y) -> greedy_choose_thermal!(x, y, nbranch, temperature, rel_temperature)
     cost_fn::Function = removedsize_noise
     minimize::String = "flops" # "flops" or "size"
 end
