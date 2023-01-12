@@ -181,18 +181,12 @@ end
 function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_temperature=true)
     n = 0
     choices = Vector{HeapNode}()
-    # println("queue: $queue")
 
     while (!isempty(queue) && n < nbranch)
         node = pop!(queue)
-        # println("node: $node")
         a, b, c = meta(node)
-        # println("a, b, = $a, $b")
 
-        # println("a: $a, b: $b, c: $c")
-        # println("remaining: $remaining")
         if any(inds ∉ values(remaining) for inds ∈ [a, b])
-            # println("continue")
             continue
         end
         push!(choices, node)
@@ -206,9 +200,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     end
 
     costs = [choice.cost for choice in choices]
-    # println("costs: $costs")
     cmin = costs[1]
-    # println("cmin: $cmin")
 
     rel_temperature ? temperature *= max(1, abs(cmin)) : nothing
 
@@ -217,19 +209,15 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     else
         energies = [exp(-(c - cmin) / temperature) for c in costs]
     end
-    # println("Energies: $energies")
 
     energies = [energy/sum(energies) for energy in energies] # normalize the energies to one
 
-    # randomly choose a contraction based on energies
+    # choose randomly a contraction weighted by the energies
     (chosen, ) = range(1,n)[rand(Categorical(energies))]
 
     node = choices[chosen]
-    # println("choises_before: $choices")
     deleteat!(choices, chosen)
-    # println("choises_after: $choices")
 
-    # println("chosen: $chosen, node: $node")
 
     # put the other choice back in the heap
     queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
@@ -237,9 +225,6 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
         push!(queue, other)
     end
 
-
-    # println("queuelast: $queue")
-    # println("return: $node")
     return node
 end
 
