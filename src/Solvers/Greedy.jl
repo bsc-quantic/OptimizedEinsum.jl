@@ -217,9 +217,6 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
 
     node = popat!(choices, chosen)
 
-
-    # put the other choice back in the heap
-    queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
     for other in choices
         push!(queue, other)
     end
