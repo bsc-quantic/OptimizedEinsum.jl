@@ -165,8 +165,8 @@ Compute the flops and max size of an ssa path.
 """
 function ssa_path_cost(ssa_path, inputs, output, size)
     inputs = copy(inputs)
-    cost = Int128(0)
-    max_size = Int(1)
+    cost = Int(0)
+    max_size = BigInt(1)
 
     for (i, j) in ssa_path
         a, b = inputs[i], inputs[j]
