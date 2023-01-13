@@ -186,9 +186,8 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
         node = pop!(queue)
         a, b, c = meta(node)
 
-        if any(inds ∉ values(remaining) for inds ∈ [a, b])
-            continue
-        end
+        any(inds -> inds ∉ values(remaining), (a, b)) && continue
+
         push!(choices, node)
         n += 1
     end
@@ -202,7 +201,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     costs = [choice.cost for choice in choices]
     cmin = costs[1]
 
-    rel_temperature ? temperature *= max(1, abs(cmin)) : nothing
+    rel_temperature && temperature *= max(1, abs(cmin))
 
     if temperature == 0.
         energies = [c == cmin ? 1 : 0 for c in costs]
@@ -210,13 +209,12 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
         energies = [exp(-(c - cmin) / temperature) for c in costs]
     end
 
-    energies = [energy/sum(energies) for energy in energies] # normalize the energies to one
+    LinearAlgebra.normalize!(energies, 1)
 
     # choose randomly a contraction weighted by the energies
     (chosen, ) = range(1,n)[rand(Categorical(energies))]
 
-    node = choices[chosen]
-    deleteat!(choices, chosen)
+    node = popat!(choices, chosen)
 
 
     # put the other choice back in the heap
