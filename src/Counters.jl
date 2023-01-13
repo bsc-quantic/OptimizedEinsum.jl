@@ -1,5 +1,4 @@
 using Base.Iterators: flatten
-using Distributions: Normal, truncated
 using Random: rand
 
 flops(a, b, size) = prod(ind -> size[ind], a ∪ b, init=1)
