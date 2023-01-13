@@ -80,11 +80,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
     # generate candidate pairwise contractions
-    if cost_fn == removedsize
-        queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
-    else
-        queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
-    end
+    queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
 
     for ind ∈ target_inds
         xs = Iterators.filter(∋(ind), values(remaining)) |> collect
@@ -196,7 +192,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     if n == 0
         return nothing
     elseif n == 1
-        return choices[1]
+        return only(choices)
     end
 
     costs = [choice.cost for choice in choices]
@@ -204,11 +200,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
 
     rel_temperature && (temperature *= max(1, abs(cmin)))
 
-    if isapprox(temperature, 0.)
-        energies = [c == cmin ? 1 : 0 for c in costs]
-    else
-        energies = [exp(-(c - cmin) / temperature) for c in costs]
-    end
+    energies = isapprox(temperature, 0.) ? Float32.(costs .== cmin) : exp.(-(costs .- cmin) / temperature)
 
     normalize!(energies, 1)
 
