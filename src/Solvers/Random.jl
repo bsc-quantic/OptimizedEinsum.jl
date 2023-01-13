@@ -12,16 +12,11 @@ abstract type RandomSolver <: Solver end
     max_time::Number = 100
     repeats::Int = 128
     choose_fn::Function = (x, y) -> greedy_choose_thermal!(x, y, nbranch, temperature, rel_temperature)
-    cost_fn::Function = removedsize_noise
-    minimize::String = "flops" # "flops" or "size"
+    cost_fn::Function = removedsize
+    minimize::Symbol = :flops # "flops" or "size"
 end
 
 function contractpath(config::RandomGreedy, inputs, output, size)
-    # start a timer
-    if config.max_time !== nothing
-        t0 = time()
-    end
-
     best = Dict{String,Any}("flops" => Inf, "size" => Inf)
 
     trials = [trail_greedy_ssa_path_and_cost(i, inputs, output, size, config.choose_fn, config.cost_fn) for i in 1:config.repeats]
@@ -33,11 +28,6 @@ function contractpath(config::RandomGreedy, inputs, output, size)
             best["flops"] = cost
             best["size"] = size
             best["ssa_path"] = ssa_path
-        end
-
-        # check if we have run out of time
-        if (config.max_time !== nothing) && (time() > t0 + config.max_time)
-            break
         end
     end
 

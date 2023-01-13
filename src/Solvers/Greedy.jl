@@ -201,7 +201,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     costs = [choice.cost for choice in choices]
     cmin = costs[1]
 
-    rel_temperature && temperature *= max(1, abs(cmin))
+    rel_temperature && (temperature *= max(1, abs(cmin)))
 
     if temperature == 0.
         energies = [c == cmin ? 1 : 0 for c in costs]
@@ -212,7 +212,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     LinearAlgebra.normalize!(energies, 1)
 
     # choose randomly a contraction weighted by the energies
-    (chosen, ) = range(1,n)[rand(Categorical(energies))]
+    chosen = rand(Categorical(energies))
 
     node = popat!(choices, chosen)
 
