@@ -22,17 +22,12 @@ function contractpath(config::RandomGreedy, inputs, output, size)
         t0 = time()
     end
 
-    flops = Vector{Int}()
-    sizes = Vector{Int}()
-
     best = Dict{String,Any}("flops" => Inf, "size" => Inf)
 
     trials = [trail_greedy_ssa_path_and_cost(i, inputs, output, size, config.choose_fn, config.cost_fn) for i in 1:config.repeats]
 
     # assess the trials
     for (ssa_path, cost, size) in trials
-        push!(flops, cost)
-        push!(sizes, size)
 
         if is_better(config.minimize, cost, size, best["flops"], best["size"])
             best["flops"] = cost
