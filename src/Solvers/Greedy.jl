@@ -204,7 +204,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
 
     rel_temperature && (temperature *= max(1, abs(cmin)))
 
-    if temperature == 0.
+    if isapprox(temperature, 0.)
         energies = [c == cmin ? 1 : 0 for c in costs]
     else
         energies = [exp(-(c - cmin) / temperature) for c in costs]
