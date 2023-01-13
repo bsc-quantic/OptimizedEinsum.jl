@@ -1,7 +1,7 @@
 using Base.Iterators: flatten
 
-flops(a, b, size) = prod(ind -> size[ind], a ∪ b, init=BigInt(1))
-flops(a, b, size, keep) = prod(ind -> size[ind], flatten((a ∪ b, ∩(keep, a, b))), init=BigInt(1))
+flops(a, b, size) = prod(ind -> size[ind], a ∪ b, init=one(BigInt))
+flops(a, b, size, keep) = prod(ind -> size[ind], flatten((a ∪ b, ∩(keep, a, b))), init=one(BigInt))
 
 rank(a, b, size, keep) = length(symdiff(a, b) ∪ ∩(keep, a, b))
 
