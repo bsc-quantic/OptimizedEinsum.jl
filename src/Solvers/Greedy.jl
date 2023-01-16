@@ -2,7 +2,8 @@ using DataStructures: BinaryMinHeap
 using Base: @kwdef
 using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath, popvalue!
 using Combinatorics: combinations
-
+using Random: seed!
+using Distributions: Categorical
 """
 Greedy contraction path solver.
 
@@ -78,7 +79,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
     # generate candidate pairwise contractions
-    queue = BinaryMinHeap{HeapNode{Int,NTuple{3,Set{Symbol}}}}()
+    queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
 
     for ind ∈ target_inds
         xs = Iterators.filter(∋(ind), values(remaining)) |> collect
@@ -90,7 +91,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
             cost = cost_fn(a, b, size, output)
 
             # add candidate to queue
-            push!(queue, HeapNode(cost, (a, b, c)))
+            push!(queue, HeapNode(Float64(cost), (a, b, c)))
         end
     end
 
@@ -130,7 +131,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
                 cost = cost_fn(c, n, size, output)
 
                 # add candidate to queue
-                push!(queue, HeapNode(cost, (c, n, out)))
+                push!(queue, HeapNode(Float64(cost), (c, n, out)))
             end
         end
 
@@ -161,12 +162,53 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     return ssa_path
 end
 
-function greedy_choose_simple!(queue, remaining)
+function greedy_choose_simple!(queue, remaining; kwargs...)
     node = pop!(queue)
     a, b, _ = meta(node)
 
     if any(inds ∉ values(remaining) for inds ∈ [a, b])
         return nothing
+    end
+
+    return node
+end
+
+
+function greedy_choose_thermal!(queue, remaining; nbranch=8, temperature=1, rel_temperature=true)
+    n = 0
+    choices = Vector{HeapNode}()
+
+    while (!isempty(queue) && n < nbranch)
+        node = pop!(queue)
+        a, b, c = meta(node)
+
+        any(inds -> inds ∉ values(remaining), (a, b)) && continue
+
+        push!(choices, node)
+        n += 1
+    end
+
+    if n == 0
+        return nothing
+    elseif n == 1
+        return only(choices)
+    end
+
+    costs = [choice.cost for choice in choices]
+    cmin = costs[1]
+
+    rel_temperature && (temperature *= max(1, abs(cmin)))
+
+    energies = isapprox(temperature, 0.) ? Float32.(costs .== cmin) : exp.(-(costs .- cmin) / temperature)
+    energies ./= sum(energies)
+
+    # choose randomly a contraction weighted by the energies
+    chosen = rand(Categorical(energies))
+
+    node = popat!(choices, chosen)
+
+    for other in choices
+        push!(queue, other)
     end
 
     return node

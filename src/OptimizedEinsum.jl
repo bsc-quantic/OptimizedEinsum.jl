@@ -13,7 +13,7 @@ end
 export flops, removedsize, rank
 export rand_equation, get_symbol
 export ContractionPath, subtree, children, inds
-import .Solvers: contractpath, Optimal, Greedy, Solver
-export contractpath, Optimal, Greedy, Solver
+import .Solvers: contractpath, Optimal, Greedy, RandomGreedy, Solver
+export contractpath, Optimal, Greedy, RandomGreedy, Solver
 
 end

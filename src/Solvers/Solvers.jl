@@ -13,6 +13,6 @@ include("Branch.jl")
 include("Random.jl")
 
 export Solver, contractpath
-export Optimal, Greedy
+export Optimal, Greedy, RandomGreedy
 
 end
