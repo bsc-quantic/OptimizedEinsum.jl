@@ -162,7 +162,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     return ssa_path
 end
 
-function greedy_choose_simple!(queue, remaining)
+function greedy_choose_simple!(queue, remaining; kwargs...)
     node = pop!(queue)
     a, b, _ = meta(node)
 
@@ -174,7 +174,7 @@ function greedy_choose_simple!(queue, remaining)
 end
 
 
-function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_temperature=true)
+function greedy_choose_thermal!(queue, remaining; nbranch=8, temperature=1, rel_temperature=true)
     n = 0
     choices = Vector{HeapNode}()
 
