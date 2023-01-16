@@ -131,7 +131,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
                 cost = cost_fn(c, n, size, output)
 
                 # add candidate to queue
-                push!(queue, HeapNode(cost, (c, n, out)))
+                push!(queue, HeapNode(Float64(cost), (c, n, out)))
             end
         end
 
