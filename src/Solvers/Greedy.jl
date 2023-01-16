@@ -4,7 +4,6 @@ using OptimizedEinsum: removedsize, ssa_to_linear, nonunique, ContractionPath, p
 using Combinatorics: combinations
 using Random: seed!
 using Distributions: Categorical
-using LinearAlgebra: normalize!
 """
 Greedy contraction path solver.
 
@@ -201,8 +200,7 @@ function greedy_choose_thermal!(queue, remaining, nbranch=8, temperature=1, rel_
     rel_temperature && (temperature *= max(1, abs(cmin)))
 
     energies = isapprox(temperature, 0.) ? Float32.(costs .== cmin) : exp.(-(costs .- cmin) / temperature)
-
-    normalize!(energies, 1)
+    energies ./= sum(energies)
 
     # choose randomly a contraction weighted by the energies
     chosen = rand(Categorical(energies))

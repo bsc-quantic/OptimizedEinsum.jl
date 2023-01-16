@@ -11,8 +11,8 @@ abstract type RandomSolver <: Solver end
     rel_temperature::Bool = true
     nbranch::Int = 8
     repeats::Int = 128
-    choose_fn::Function = (x, y) -> greedy_choose_thermal!(x, y, nbranch, temperature, rel_temperature)
-    cost_fn::Function = (a, b, size, keep) -> rand(truncated(Normal(1.0, 0.01),0,10),1)[1]*removedsize(a, b, size, keep)
+    choose_fn::Function = greedy_choose_thermal!
+    cost_fn::Function = removedsize
     minimize::Symbol = :flops # :flops or :size
 end
 
@@ -43,7 +43,7 @@ function trail_greedy_ssa_path_and_cost(r, inputs, output, size_dict, choose_fn,
     return ssa_path, flops, size
 end
 
-function is_better(minimize::Symbol, flops::Number, size::Number, best_flops::Number, best_size::Number)
+function is_better(minimize, flops, size, best_flops, best_size)
     if minimize == :flops
         return (flops, size) < (best_flops, best_size)
     elseif minimize == :size
