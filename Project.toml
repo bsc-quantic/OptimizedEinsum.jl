@@ -16,6 +16,7 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 [compat]
 Combinatorics = "1.0"
 DataStructures = "0.18"
+Distributions = "0.25"
 GraphMakie = "0.4"
 Graphs = "1.7"
 Makie = "0.18"
