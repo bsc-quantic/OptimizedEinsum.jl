@@ -43,7 +43,7 @@ function inds(path::ContractionPath, i)
     return symdiff(a, b) ∪ ∩(path.output, a, b)
 end
 
-Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], inds(path, i), init=1)
+Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], inds(path, i), init=one(BigInt))
 
 IteratorSize(::ContractionPath) = Base.HasLength()
 
