@@ -60,6 +60,7 @@
 
         @test popvalue!(d, 1) == :a
         @test :a ∉ keys(d)
+        @test popvalue!(d, 1) == nothing
 
         # TODO test if repeated value
     end
