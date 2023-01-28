@@ -196,8 +196,10 @@ function pathtype(path)
     return :ssa
 end
 
-function nonunique(itr)
-    xs = sort(itr, by=collect)
+nonunique(itr...) = nonunique(itr)
+nonunique(itr) = nonunique(collect(itr))
+function nonunique(itr::Vector)
+    xs = sort(itr; by=e -> e isa Tuple || e isa AbstractSet ? collect(e) : e)
     return Set(a for (a, b) ∈ zip(xs, xs[2:end]) if a == b)
 end
 
