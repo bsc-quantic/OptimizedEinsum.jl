@@ -1,5 +1,4 @@
 using Base.Iterators: flatten
-using Random: rand
 
 flops(a, b, size) = prod(ind -> size[ind], a ∪ b, init=one(BigInt))
 flops(a, b, size, keep) = prod(ind -> size[ind], flatten((a ∪ b, ∩(keep, a, b))), init=one(BigInt))
