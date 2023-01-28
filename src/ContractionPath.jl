@@ -8,11 +8,15 @@ struct ContractionPath
     size::Dict{Symbol,Int}
 
     function ContractionPath(path, inputs, output, size)
-        @assert issetequal(flatten([inputs..., output]), keys(size))
-
-        if pathtype(path) == :linear
-            path = linear_to_ssa(path)
+        if !all(o -> any(∋(o), inputs), output)
+            throw(ArgumentError("`output` must be a subset of the indices in `inputs`"))
         end
+
+        if !issetequal(flatten(inputs), keys(size))
+            throw(ArgumentError("`size` dictionary must contain all indices"))
+        end
+
+        pathtype(path) == :linear && (path = linear_to_ssa(path))
 
         new(path, inputs, output, size)
     end
@@ -20,16 +24,18 @@ end
 
 Base.summary(io::IO, path::ContractionPath) = print(io, "ContractionPath(output=$(isempty(path.output) ? "[]" : path.output), flops=$(flops(path)))")
 
+length(path::ContractionPath) = length(path.ssa_path)
+
 function signatures(path::ContractionPath)
-    inputs = copy(path.inputs)
+    tensors = copy(path.inputs)
     for (i, j) ∈ path.ssa_path
-        push!(inputs, symdiff(inputs[i], inputs[j]) ∪ ∩(path.output, inputs[i], inputs[j]))
+        push!(tensors, symdiff(tensors[i], tensors[j]) ∪ ∩(path.output, tensors[i], tensors[j]))
     end
 
-    inputs
+    tensors
 end
 
-function inds(path::ContractionPath, i)
+function labels(path::ContractionPath, i)
     n = length(path.inputs)
 
     if 1 <= i <= n
@@ -37,17 +43,15 @@ function inds(path::ContractionPath, i)
     end
 
     (l, r) = path.ssa_path[i-n]
-    a = inds(path, l)
-    b = inds(path, r)
+    a = labels(path, l)
+    b = labels(path, r)
 
     return symdiff(a, b) ∪ ∩(path.output, a, b)
 end
 
-Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], inds(path, i), init=one(BigInt))
+Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], labels(path, i), init=one(BigInt))
 
 IteratorSize(::ContractionPath) = Base.HasLength()
-
-length(path::ContractionPath) = length(path.ssa_path) - 1
 
 Base.iterate(path::ContractionPath, state=0) =
     if state < length(path.ssa_path)
@@ -73,8 +77,8 @@ function flops(path::ContractionPath, i)
     end
 
     (l, r) = path.ssa_path[i-n]
-    a = inds(path, l)
-    b = inds(path, r)
+    a = labels(path, l)
+    b = labels(path, r)
 
     return flops(a, b, path.size, path.output)
 end
