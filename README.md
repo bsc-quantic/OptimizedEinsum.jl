@@ -1,5 +1,6 @@
 # OptimizedEinsum.jl
 
+[![CI](https://github.com/bsc-quantic/OptimizedEinsum.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/bsc-quantic/OptimizedEinsum.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/bsc-quantic/OptimizedEinsum.jl/branch/master/graph/badge.svg?token=TO0LDD3UEL)](https://codecov.io/gh/bsc-quantic/OptimizedEinsum.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
