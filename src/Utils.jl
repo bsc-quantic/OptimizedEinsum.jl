@@ -147,7 +147,7 @@ function linear_to_ssa(path)
     ssa_path = map(zip(new_ids, path)) do (new_id, ids)
         ret = map(id -> linear_to_ssa[id], ids) |> collect
 
-        for id in sort(ids, rev=true)
+        for id in sort(collect(ids); rev=true)
             deleteat!(linear_to_ssa, id)
         end
         append!(linear_to_ssa, new_id)
