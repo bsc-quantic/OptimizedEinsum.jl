@@ -1,5 +1,4 @@
 using Base.Iterators: flatten
-import Base: maximum, length, IteratorSize
 
 struct ContractionPath
     ssa_path::Vector{NTuple{2,Int}}
@@ -24,8 +23,6 @@ end
 
 Base.summary(io::IO, path::ContractionPath) = print(io, "ContractionPath(output=$(isempty(path.output) ? "[]" : path.output), flops=$(flops(path)))")
 
-length(path::ContractionPath) = length(path.ssa_path)
-
 function signatures(path::ContractionPath)
     tensors = copy(path.inputs)
     for (i, j) ∈ path.ssa_path
@@ -49,9 +46,16 @@ function labels(path::ContractionPath, i)
     return symdiff(a, b) ∪ ∩(path.output, a, b)
 end
 
-Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], labels(path, i), init=one(BigInt))
+Base.length(path::ContractionPath) = length(path.ssa_path)
 
-IteratorSize(::ContractionPath) = Base.HasLength()
+Base.size(path::ContractionPath) = path.size
+Base.size(path::ContractionPath, i) = prod(ind -> path.size[ind], labels(path, i), init=one(BigInt))
+Base.size(path::ContractionPath, i::Symbol) = path.size[i]
+
+# Iterator interface
+Base.IteratorSize(::ContractionPath) = Base.HasLength()
+Base.IteratorEltype(::ContractionPath) = Base.HasEltype()
+Base.eltype(::Type{ContractionPath}) = NTuple{2,Vector{Symbol}}
 
 Base.iterate(path::ContractionPath, state=0) =
     if state < length(path.ssa_path)
@@ -82,17 +86,6 @@ function flops(path::ContractionPath, i)
 
     return flops(a, b, path.size, path.output)
 end
-
-function maximum(fn, path::ContractionPath)
-    signs = signatures(path)
-    mapreduce(max, path.ssa_path) do (i, j)
-        a = signs[i]
-        b = signs[j]
-        fn(a, b, path.size, path.output)
-    end
-end
-
-maximum(path::ContractionPath) = maximum(flops, path)
 
 children(path::ContractionPath, i) = (n = length(path.inputs); i > n ? path.ssa_path[i-n] : Int[])
 
