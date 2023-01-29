@@ -1,5 +1,5 @@
 @testset "ContractionPath" begin
-    using OptimizedEinsum: ContractionPath, signatures, labels
+    using OptimizedEinsum: ContractionPath, signatures, labels, rank
 
     output = Symbol[] # TODO fix #23 and try `[:e]`
     inputs = [[:h, :c, :f], [:a], [:d, :b], [:g, :d, :b, :a, :f], [:e, :h, :c, :g]]
@@ -17,4 +17,12 @@
 
     @test signatures(path) == [inputs..., [:g, :a, :f], [:e, :g, :f], [:e, :a], [:e]]
     @test all(x -> ((i, sign) = x; labels(path, i) == sign), enumerate(signatures(path)))
+
+    @test maximum(path) do (i, j)
+        rank(labels(path, i), labels(path, j), size_dict, output)
+    end == 3
+
+    @test sum(path) do (i, j)
+        flops(labels(path, i), labels(path, j), size_dict, output)
+    end == 3200 + 4608 + 640 + 10
 end
