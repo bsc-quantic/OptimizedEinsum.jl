@@ -78,6 +78,10 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     # if it appears in 3+, then it cannot be contracted (but indirect Hadamard products can)
     target_inds_histogram = histogram(Iterators.filter(∈(target_inds), Iterators.flatten(values(remaining))))
     high_ocurrent_inds = keys(filter(>(2) ∘ last, target_inds_histogram))
+
+    output_inds_histogram = histogram(Iterators.filter(∈(output), Iterators.flatten(values(remaining))))
+    any(x -> x > 2, values(output_inds_histogram)) && error("The 'Greedy' solver currently does not support output hyperindices.")
+
     # generate candidate pairwise contractions
     queue = BinaryMinHeap{HeapNode{Float64,NTuple{3,Set{Symbol}}}}()
 
@@ -98,6 +102,7 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
     while !isempty(queue)
         # select candidate
         winner = choose_fn(queue, remaining)
+
         if winner === nothing
             continue
         end
@@ -109,11 +114,11 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         push!(ssa_path, (ssa_id_i, ssa_id_j))
 
         # update ocurrence histogram
-        for ind ∈ [a..., b...]
+        for ind ∈ filter(x -> x ∈ keys(target_inds_histogram), [a...,b...])
             target_inds_histogram[ind] -= 1
         end
 
-        for ind ∈ c
+        for ind ∈ filter(x -> x ∈ keys(target_inds_histogram), c)
             target_inds_histogram[ind] += 1
         end
 
