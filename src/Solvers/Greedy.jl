@@ -114,11 +114,11 @@ function ssa_greedy_optimize(inputs, output, size, choose_fn=greedy_choose_simpl
         push!(ssa_path, (ssa_id_i, ssa_id_j))
 
         # update ocurrence histogram
-        for ind ∈ filter(x -> x ∈ keys(target_inds_histogram), [a...,b...])
+        for ind ∈ Iterators.filter(x -> x ∈ keys(target_inds_histogram), [a...,b...])
             target_inds_histogram[ind] -= 1
         end
 
-        for ind ∈ filter(x -> x ∈ keys(target_inds_histogram), c)
+        for ind ∈ Iterators.filter(x -> x ∈ keys(target_inds_histogram), c)
             target_inds_histogram[ind] += 1
         end
 
