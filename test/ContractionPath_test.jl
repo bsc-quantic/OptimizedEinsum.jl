@@ -1,7 +1,7 @@
 @testset "ContractionPath" begin
     using OptimizedEinsum: ContractionPath, signatures, labels, rank
 
-    output = Symbol[] # TODO fix #23 and try `[:e]`
+    output = Symbol[:e]
     inputs = [[:h, :c, :f], [:a], [:d, :b], [:g, :d, :b, :a, :f], [:e, :h, :c, :g]]
     size_dict = Dict(:a => 5, :b => 5, :f => 8, :d => 2, :e => 2, :c => 4, :h => 9, :g => 8)
     ssapath = [(4, 3), (5, 1), (7, 6), (8, 2)]
