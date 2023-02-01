@@ -26,11 +26,11 @@ function Makie.plot(path::ContractionPath; colormap=to_colormap(:viridis)[begin:
     min_flop, max_flop = extrema(log_flop)
 
     if p.attributes.edge_width[] == default_attrs.edge_width[]
-        kwargs[:edge_width] = (log_size/max_size)*10
+        kwargs[:edge_width] = (log_size/max_size)*MAX_EDGE_WIDTH
     end
 
     if p.attributes.arrow_size[] == default_attrs.arrow_size[]
-        kwargs[:arrow_size] = (log_size/max_size)*28
+        kwargs[:arrow_size] = (log_size/max_size)*MAX_ARROW_SIZE
     end
 
     if p.attributes.edge_color[] == default_attrs.edge_color[]
