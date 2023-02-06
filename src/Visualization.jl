@@ -57,6 +57,7 @@ function Makie.plot(path::ContractionPath; colormap = to_colormap(:viridis)[begi
     return f, ax, p
 end
 
+# TODO replace `to_colormap(:viridis)[begin:end-10]` with a custom colormap
 function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], kwargs...)
     scene = Scene()
     default_attrs = default_theme(scene, GraphPlot)
@@ -83,22 +84,26 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     arrow_attr = (colorrange=(min_size, max_size), colormap=colormap),
     edge_attr = (colorrange=(min_size, max_size), colormap=colormap),
     node_attr = (colorrange=(min_flop, max_flop),
+    # TODO replace `to_colormap(:plasma)[begin:end-50]), kwargs...)` with a custom colormap
     colormap = to_colormap(:plasma)[begin:end-50]), kwargs...)
 
     ax = current_axis(current_figure())
 
-    if !isa(ax, LScene) # hide decorations if it is not a 3D plot
+    # hide decorations if it is not a 3D plot
+    if !isa(ax, LScene)
         hidedecorations!(ax)
         hidespines!(ax)
         ax.aspect = DataAspect()
     end
 
+    # TODO configurable `labelsize`
     cbar = Colorbar(f[1,2], get_edge_plot(p), label=L"\log_{2}(size)", flip_vertical_label=true, labelsize = 34)
     cbar.height = Relative(5/6)
 
-    cbar2 = Colorbar(f[1,0], get_node_plot(p), label=L"\log_{10}(flops)", flipaxis=false, labelsize = 34)
+    cbar2 = Colorbar(f[1,0], get_node_plot(p), label="\\log\_\{10\}(flops)", flipaxis=false, labelsize = 34)
     cbar2.height = Relative(5/6)
 
+    # TODO configurable alignments
     cbar2.alignmode = Mixed(left = -10, right = -30)
     cbar.alignmode = Mixed(left = -30, right = -10)
 
