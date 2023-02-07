@@ -39,23 +39,23 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     kwargs[:node_size] = (log_flop/max_flop) * MAX_NODE_SIZE
     kwargs[:node_color] = log_flop
 
-    haskey(kwargs, :layout) && kwargs[:layout] isa Spring{3} ? ax = LScene(f[1,1]) : ax = Axis(f[1,1])
+    if haskey(kwargs, :layout) && kwargs[:layout] isa GraphMakie.NetworkLayout.IterativeLayout{3}
+        ax = LScene(f[1,1])
+    else
+        ax = Axis(f[1,1])
+        # hide decorations if it is not a 3D plot
+        hidedecorations!(ax)
+        hidespines!(ax)
+        ax.aspect = DataAspect()
+    end
 
     p = graphplot!(f[1,1], graph;
         arrow_attr = (colorrange=(min_size, max_size), colormap=colormap),
         edge_attr = (colorrange=(min_size, max_size), colormap=colormap),
         node_attr = (colorrange=(min_flop, max_flop),
         # TODO replace `to_colormap(:plasma)[begin:end-50]), kwargs...)` with a custom colormap
-        colormap = to_colormap(:plasma)[begin:end-50]), kwargs...)
-
-    ax = current_axis(current_figure())
-
-    # hide decorations if it is not a 3D plot
-    if !isa(ax, LScene)
-        hidedecorations!(ax)
-        hidespines!(ax)
-        ax.aspect = DataAspect()
-    end
+        colormap = to_colormap(:plasma)[begin:end-50]),
+        kwargs...)
 
     # TODO configurable `labelsize`
     cbar = Colorbar(f[1,2], get_edge_plot(p), label = L"\log_{2}(size)", flip_vertical_label = true, labelsize = 34)
