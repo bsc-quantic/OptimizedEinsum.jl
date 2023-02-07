@@ -2,6 +2,7 @@ using Graphs
 using Makie
 using GraphMakie
 
+# TODO rework size calculating algorithm
 const MIN_LOGFLOP = 0.01
 const MAX_EDGE_WIDTH = 10.
 const MAX_ARROW_SIZE = 25.
