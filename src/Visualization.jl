@@ -97,7 +97,7 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     end
 
     # TODO configurable `labelsize`
-    cbar = Colorbar(f[1,2], get_edge_plot(p), label=L"\log_{2}(size)", flip_vertical_label=true, labelsize = 34)
+    cbar = Colorbar(f[1,2], get_edge_plot(p), label="\\log\_\{2\}(size)", flip_vertical_label=true, labelsize = 34)
     cbar.height = Relative(5/6)
 
     cbar2 = Colorbar(f[1,0], get_node_plot(p), label="\\log\_\{10\}(flops)", flipaxis=false, labelsize = 34)
