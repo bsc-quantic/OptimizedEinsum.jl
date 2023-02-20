@@ -9,17 +9,17 @@ const MAX_EDGE_WIDTH = 10.
 const MAX_ARROW_SIZE = 25.
 const MAX_NODE_SIZE = 40.
 
-function Makie.plot(path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], interaction = true, kwargs...)
+function Makie.plot(path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], labels = false, kwargs...)
     f = Figure()
 
-    p, ax = plot!(f[1,1], path; colormap, interaction, kwargs...)
+    p, ax = plot!(f[1,1], path; colormap, labels, kwargs...)
     display(f)
 
     return f, ax, p
 end
 
 # TODO replace `to_colormap(:viridis)[begin:end-10]` with a custom colormap
-function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], interaction = true, kwargs...)
+function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], labels = false, kwargs...)
     scene = Scene()
     default_attrs = default_theme(scene, GraphPlot)
 
@@ -39,10 +39,10 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     kwargs[:node_size] = (log_flop/max_flop) * MAX_NODE_SIZE
     kwargs[:node_color] = log_flop
 
-    elabels = [join(labels(path, i)) for i in 1:ne(graph)]
+    elabels = [join(OptimizedEinsum.labels(path, i)) for i in 1:ne(graph)]
 
     if haskey(kwargs, :layout) && kwargs[:layout] isa GraphMakie.NetworkLayout.IterativeLayout{3}
-        ax = interaction ? Axis3(f[1,1]) : LScene(f[1,1])
+        ax = LScene(f[1,1])
     else
         ax = Axis(f[1,1])
         # hide decorations if it is not a 3D plot
@@ -55,16 +55,15 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     nlabels_fontsize = 40
 
     p = graphplot!(f[1,1], graph;
-        # nlabels=elabels;
-        # elabels_fontsize=12,
         arrow_attr = (colorrange=(min_size, max_size), colormap=colormap),
         edge_attr = (colorrange=(min_size, max_size), colormap=colormap),
         node_attr = (colorrange=(min_flop, max_flop),
         # TODO replace `to_colormap(:plasma)[begin:end-50]), kwargs...)` with a custom colormap
         colormap = to_colormap(:plasma)[begin:end-50]),
-        elabels,
-        elabels_color = :black,
-        elabels_textsize = [0 for i in 1:ne(graph)],
+        elabels = labels ? elabels : nothing,
+        elabels_color = [:black for i in 1:ne(graph)],
+        # TODO configurable `elabels_textsize`
+        elabels_textsize = [(log_size[i]/max_size) * 5 + 12 for i in 1:ne(graph)],
         kwargs...)
 
     # TODO configurable `labelsize`
@@ -77,16 +76,6 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
     # TODO configurable alignments
     cbar2.alignmode = Mixed(left = -10, right = -30)
     cbar.alignmode = Mixed(left = -30, right = -10)
-
-    if interaction
-        function edge_hover_action(state, idx, event, axis)
-            p.elabels_textsize[][idx] = state ? 18 : 0
-            p.elabels_textsize[] = p.elabels_textsize[]
-
-        end
-        ehover = EdgeHoverHandler(edge_hover_action)
-        register_interaction!(ax, :ehover, ehover)
-    end
 
     return p, ax
 end
