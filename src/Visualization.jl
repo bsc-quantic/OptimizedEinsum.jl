@@ -9,10 +9,10 @@ const MAX_EDGE_WIDTH = 10.
 const MAX_ARROW_SIZE = 25.
 const MAX_NODE_SIZE = 40.
 
-function Makie.plot(path::ContractionPath; colormap = to_colormap(:viridis)[begin:end-10], labels = false, kwargs...)
+function Makie.plot(path::ContractionPath; kwargs...)
     f = Figure()
 
-    p, ax = plot!(f[1,1], path; colormap, labels, kwargs...)
+    p, ax = plot!(f[1,1], path; kwargs...)
     display(f)
 
     return f, ax, p
