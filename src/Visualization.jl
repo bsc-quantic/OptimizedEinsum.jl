@@ -51,9 +51,6 @@ function Makie.plot!(f::GridPosition, path::ContractionPath; colormap = to_color
         ax.aspect = DataAspect()
     end
 
-    # TODO configurable `nlables_fontsize`
-    nlabels_fontsize = 40
-
     p = graphplot!(f[1,1], graph;
         arrow_attr = (colorrange=(min_size, max_size), colormap=colormap),
         edge_attr = (colorrange=(min_size, max_size), colormap=colormap),
