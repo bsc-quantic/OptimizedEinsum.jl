@@ -8,6 +8,12 @@ include("Solvers/Solvers.jl")
 
 function __init__()
     @require Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a" include("Visualization.jl")
+    @warn """This is the last release of `OptimizedEinsum` on the General official registry.
+        Further development can be found in our registry https://github.com/bsc-quantic/Registry in the form of `OptimizedEinsum` or subdivided packages.
+        If you want to use our registry just do:
+        \tusing Pkg
+        \tpkg"registry add https://github.com/bsc-quantic/Registry"
+    """
 end
 
 export flops, removedsize, rank
