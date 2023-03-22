@@ -1,7 +1,7 @@
 using Graphs
 using Makie
 using GraphMakie
-using GraphMakie.NetworkLayout: IterativeLayout
+using NetworkLayout: IterativeLayout
 
 # TODO rework size calculating algorithm
 const MIN_LOGFLOP = 0.01
