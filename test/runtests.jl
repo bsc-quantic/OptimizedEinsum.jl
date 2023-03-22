@@ -5,6 +5,7 @@ import OptimizedEinsum
     include("Utils_test.jl")
     include("Counters_test.jl")
     include("ContractionPath_test.jl")
+    include("Visualization_test.jl")
 end
 
 @testset "Aqua" verbose = true begin
