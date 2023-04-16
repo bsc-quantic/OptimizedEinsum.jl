@@ -1,7 +1,7 @@
 name = "OptimizedEinsum"
 uuid = "c9cfed12-e746-47c4-860d-affc68c43467"
 authors = ["Sergio Sánchez Ramírez <sergio.sanchez.ramirez@bsc.es>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
